@@ -84,6 +84,36 @@
         </div>
     </div>
 
+    <!-- Access Code Screen -->
+    <div id="access-code-screen"
+        class="hidden fixed inset-0 bg-gray-50 dark:bg-gray-900 z-40 flex items-center justify-center p-4">
+        <div
+            class="bg-white dark:bg-gray-800 max-w-md w-full p-8 rounded-3xl shadow-2xl border border-brand-100 dark:border-brand-900/30 text-center">
+            <div
+                class="w-20 h-20 mx-auto bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 text-3xl mb-4">
+                <i class="fas fa-key"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">كود الوصول المطلوب</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                الرجاء إدخال كود الوصول للمتابعة إلى لوحة التحكم
+            </p>
+            <form id="access-code-form" class="space-y-4">
+                <div>
+                    <input type="password" id="access-code-input"
+                        class="block w-full p-4 text-center text-lg font-mono rounded-xl border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                        placeholder="أدخل الكود هنا" required autocomplete="off">
+                </div>
+                <button type="submit" id="verify-code-btn"
+                    class="w-full px-6 py-4 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-all shadow-md text-lg">
+                    <i class="fas fa-arrow-left ml-2"></i> تحقق والمتابعة
+                </button>
+            </form>
+            <p id="code-error" class="hidden mt-4 text-sm text-red-600 dark:text-red-400 font-medium">
+                <i class="fas fa-exclamation-circle ml-1"></i> كود غير صحيح! حاول مرة أخرى
+            </p>
+        </div>
+    </div>
+
     <!-- Admin Dashboard -->
     <div id="admin-dashboard" class="hidden min-h-screen">
         <!-- Header -->
@@ -253,24 +283,64 @@
         });
 
         // Auth Check
+        const ACCESS_CODE = 'ADATEALMadatealm';
+        const CODE_SESSION_KEY = 'adminAccessVerified';
+
         onAuthStateChanged(auth, async (user) => {
             const loadingScreen = document.getElementById('loading-screen');
             const accessDenied = document.getElementById('access-denied');
+            const accessCodeScreen = document.getElementById('access-code-screen');
             const dashboard = document.getElementById('admin-dashboard');
 
+            // Check if user is logged in and is admin
             if (!user || !isAdmin(user.email)) {
                 loadingScreen.classList.add('hidden');
                 accessDenied.classList.remove('hidden');
                 return;
             }
 
-            // User is admin
+            // User is admin email, now check access code
+            const codeVerified = sessionStorage.getItem(CODE_SESSION_KEY) === 'true';
+
+            if (!codeVerified) {
+                loadingScreen.classList.add('hidden');
+                accessCodeScreen.classList.remove('hidden');
+                return;
+            }
+
+            // Code verified, show dashboard
             loadingScreen.classList.add('hidden');
             dashboard.classList.remove('hidden');
             document.getElementById('admin-email').innerText = user.email;
 
             // Load data
             await loadDashboard();
+        });
+
+        // Handle access code verification
+        document.getElementById('access-code-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('access-code-input');
+            const errorMsg = document.getElementById('code-error');
+            const btn = document.getElementById('verify-code-btn');
+
+            if (input.value === ACCESS_CODE) {
+                // Code correct
+                sessionStorage.setItem(CODE_SESSION_KEY, 'true');
+                document.getElementById('access-code-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('admin-email').innerText = auth.currentUser.email;
+                loadDashboard();
+            } else {
+                // Code incorrect
+                errorMsg.classList.remove('hidden');
+                input.value = '';
+                input.classList.add('border-red-500');
+                setTimeout(() => {
+                    errorMsg.classList.add('hidden');
+                    input.classList.remove('border-red-500');
+                }, 3000);
+            }
         });
 
         async function loadDashboard() {

@@ -62,6 +62,24 @@ export function renderProfile() {
                         </div>
                     </div>
 
+                    <!-- Telegram VIP Group Button -->
+                    <div id="telegram-vip-section" class="hidden mb-6">
+                        <a href="https://t.me/+SkOYOSnH20ZkNzRk" target="_blank" class="block p-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02]">
+                            <div class="flex items-center justify-between text-white">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                                        <i class="fab fa-telegram text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">مجموعة الدماء البيضاء VIP</h3>
+                                        <p class="text-sm text-blue-100">انضم الآن للمجموعة الحصرية</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-arrow-left text-xl"></i>
+                            </div>
+                        </a>
+                    </div>
+
                     <!-- Contact Info -->
                     <div class="space-y-3 mb-6">
                         <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
@@ -229,6 +247,23 @@ export async function initProfile() {
         }
         if (userData.lastLogin) {
             document.getElementById('profile-last-login').innerText = new Date(userData.lastLogin.toDate()).toLocaleDateString('ar-EG');
+        }
+
+        // Check if user qualifies for Telegram VIP group
+        try {
+            const settingsDoc = await getDoc(doc(db, "settings", "global"));
+            if (settingsDoc.exists()) {
+                const settings = settingsDoc.data();
+                const requiredPoints = settings.telegramGroupPoints || 500;
+                const userPoints = userData.points || 0;
+
+                // Show Telegram button if user has enough points
+                if (userPoints >= requiredPoints) {
+                    document.getElementById('telegram-vip-section').classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error("Error checking Telegram group eligibility:", error);
         }
 
         // Edit Profile Modal

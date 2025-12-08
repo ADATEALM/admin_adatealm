@@ -78,7 +78,7 @@ export function renderAdmin() {
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     <i class="fas fa-sliders-h ml-2 text-brand-600"></i> إعدادات التحدي والنقاط
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <i class="fas fa-bullseye ml-1"></i> هدف التحدي الأسبوعي (عدد المنشورات)
@@ -90,6 +90,13 @@ export function renderAdmin() {
                             <i class="fas fa-star ml-1"></i> نقاط المكافأة لكل منشور
                         </label>
                         <input type="number" id="setting-points" class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 shadow-sm" value="10" min="1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fab fa-telegram ml-1"></i> نقاط الانضمام لمجموعة VIP
+                        </label>
+                        <input type="number" id="setting-telegram-points" class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 shadow-sm" value="500" min="0">
+                        <p class="mt-1 text-xs text-gray-500">عند الوصول لهذه النقاط، يظهر زر تيليجرام</p>
                     </div>
                 </div>
                 <button id="save-settings-btn" class="mt-4 px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
@@ -176,6 +183,7 @@ export async function initAdmin() {
         const btn = e.target;
         const target = parseInt(document.getElementById('setting-target').value);
         const points = parseInt(document.getElementById('setting-points').value);
+        const telegramPoints = parseInt(document.getElementById('setting-telegram-points').value);
 
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
         btn.disabled = true;
@@ -184,10 +192,11 @@ export async function initAdmin() {
             await setDoc(doc(db, "settings", "global"), {
                 weeklyTarget: target,
                 rewardPoints: points,
+                telegramGroupPoints: telegramPoints,
                 updatedBy: auth.currentUser.email,
                 updatedAt: new Date()
             });
-            adminSettings = { weeklyTarget: target, rewardPoints: points };
+            adminSettings = { weeklyTarget: target, rewardPoints: points, telegramGroupPoints: telegramPoints };
             btn.innerHTML = '<i class="fas fa-check ml-1"></i> تم الحفظ بنجاح';
             btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
             btn.classList.add('bg-green-600');
@@ -364,6 +373,7 @@ async function loadSettings() {
             adminSettings = docSnap.data();
             document.getElementById('setting-target').value = adminSettings.weeklyTarget || 20;
             document.getElementById('setting-points').value = adminSettings.rewardPoints || 10;
+            document.getElementById('setting-telegram-points').value = adminSettings.telegramGroupPoints || 500;
         }
     } catch (e) {
         console.warn("Using default settings", e);
