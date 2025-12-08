@@ -1,8 +1,12 @@
+import { auth, db } from '../firebase-config.js';
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getUserRank, getUserLevel } from '../auth.js';
+
 export function renderHome() {
     return `
         <!-- Welcome Section -->
         <div class="mb-8 animate-fade-in">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">مرحباً، المشرف 👋</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">مرحباً، <span id="welcome-name">المشرف</span> 👋</h1>
             <p class="text-gray-500 dark:text-gray-400">إليك نظرة عامة على نشاطك وفريق العمل هذا الأسبوع.</p>
         </div>
 
@@ -14,7 +18,7 @@ export function renderHome() {
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h2 class="text-lg font-bold mb-1">التحدي الأسبوعي</h2>
-                            <p class="text-brand-100 text-sm opacity-90">ينتهي خلال 3 أيام</p>
+                            <p class="text-brand-100 text-sm opacity-90" id="challenge-days">ينتهي خلال 7 أيام</p>
                         </div>
                         <div class="bg-white/20 p-2 rounded-lg backdrop-blur-md group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-trophy text-yellow-300 text-xl"></i>
@@ -29,7 +33,7 @@ export function renderHome() {
                     </div>
                     <p class="mt-3 text-xs text-brand-100/80">
                         <i class="fas fa-info-circle ml-1"></i>
-                        احصل على "بطل الأسبوع" عند إكمال التحدي!
+                        يتم منح النقاط بعد موافقة المشرف فقط
                     </p>
                 </div>
                 <!-- Decor -->
@@ -43,22 +47,22 @@ export function renderHome() {
                     <div class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 p-3 rounded-xl">
                         <i class="fas fa-star text-lg"></i>
                     </div>
-                    <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">+50 اليوم</span>
+                    <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full" id="points-badge">فعّال</span>
                 </div>
                 <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">نقاطي</h3>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">1,250</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1" id="user-points">0</p>
             </div>
 
             <!-- Rank Card -->
             <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-soft hover:shadow-card transition-all duration-300 border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 p-3 rounded-xl">
-                        <i class="fas fa-crown text-lg"></i>
+                    <div class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 p-3 rounded-xl" id="rank-icon-container">
+                        <i class="fas fa-user text-lg" id="rank-icon"></i>
                     </div>
-                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">المستوى 5</span>
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400" id="user-level-badge">المستوى 1</span>
                 </div>
                 <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">الرتبة الحالية</h3>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">مشرف نشيط</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1" id="user-rank">متدرب</p>
             </div>
         </div>
 
@@ -79,40 +83,120 @@ export function renderHome() {
                 <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">المحادثة</span>
             </button>
 
-            <button class="p-4 bg-white dark:bg-dark-card rounded-2xl shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 flex flex-col items-center gap-3 group">
-                <div class="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-3 rounded-full group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
-                    <i class="fas fa-heart text-xl"></i>
-                </div>
-                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">شكر وتقدير</span>
-            </button>
-
-            <button class="p-4 bg-white dark:bg-dark-card rounded-2xl shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 flex flex-col items-center gap-3 group">
+            <button onclick="window.location.hash='members'" class="p-4 bg-white dark:bg-dark-card rounded-2xl shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 flex flex-col items-center gap-3 group">
                 <div class="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 p-3 rounded-full group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
                     <i class="fas fa-users text-xl"></i>
                 </div>
                 <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">الأعضاء</span>
             </button>
+
+            <button onclick="window.location.hash='profile'" class="p-4 bg-white dark:bg-dark-card rounded-2xl shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 flex flex-col items-center gap-3 group">
+                <div class="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 p-3 rounded-full group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
+                    <i class="fas fa-user-circle text-xl"></i>
+                </div>
+                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">البروفيل</span>
+            </button>
         </div>
     `;
 }
 
-export function initHome() {
-    // Logic to fetch stats and update the UI
-    // Placeholder animation for the bar
-    setTimeout(() => {
+export async function initHome() {
+    const user = auth.currentUser;
+    if (!user) {
+        console.warn("No user logged in");
+        return;
+    }
+
+    try {
+        // Fetch user data from Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+
+        if (!userDoc.exists()) {
+            console.error("User document not found");
+            return;
+        }
+
+        const userData = userDoc.data();
+        console.log("User data loaded:", userData); // Debug log
+
+        // Update welcome name
+        const welcomeName = document.getElementById('welcome-name');
+        if (welcomeName) {
+            welcomeName.innerText = userData.displayName || user.displayName || 'المشرف';
+        }
+
+        // Update points
+        const userPoints = userData.points || 0;
+        const pointsEl = document.getElementById('user-points');
+        if (pointsEl) {
+            pointsEl.innerText = userPoints.toLocaleString('ar-EG');
+        }
+
+        // Update rank and level
+        const rankInfo = getUserRank(userPoints);
+        const level = getUserLevel(userPoints);
+
+        const rankEl = document.getElementById('user-rank');
+        if (rankEl) {
+            rankEl.innerText = rankInfo.name;
+        }
+
+        const levelBadge = document.getElementById('user-level-badge');
+        if (levelBadge) {
+            levelBadge.innerText = `المستوى ${level}`;
+        }
+
+        const rankIcon = document.getElementById('rank-icon');
+        if (rankIcon) {
+            rankIcon.className = `${rankInfo.icon} text-lg`;
+        }
+
+        const rankIconContainer = document.getElementById('rank-icon-container');
+        if (rankIconContainer && rankInfo.color) {
+            rankIconContainer.style.backgroundColor = rankInfo.color + '20';
+            rankIconContainer.style.color = rankInfo.color;
+        }
+
+        // Update weekly progress
+        const weeklyCount = userData.weeklyProgress?.count || 0;
+        const weeklyTarget = userData.weeklyProgress?.target || 20;
+        const percentage = weeklyTarget > 0 ? (weeklyCount / weeklyTarget) * 100 : 0;
+
         const bar = document.getElementById('challenge-bar');
         const count = document.getElementById('challenge-count');
         const percent = document.getElementById('challenge-percent');
 
         if (bar && count && percent) {
-            // Mock data: 13/20
-            const current = 13;
-            const target = 20;
-            const percentage = (current / target) * 100;
+            // Animate the progress bar
+            setTimeout(() => {
+                bar.style.width = `${Math.min(percentage, 100)}%`;
+            }, 300);
 
-            bar.style.width = `${percentage}%`;
-            count.innerText = `${current} / ${target} منشور`;
+            count.innerText = `${weeklyCount} / ${weeklyTarget} منشور`;
             percent.innerText = `${Math.round(percentage)}%`;
         }
-    }, 500);
+
+        // Calculate days remaining in week
+        if (userData.weeklyProgress?.weekStartDate) {
+            const weekStart = userData.weeklyProgress.weekStartDate.toDate();
+            const now = new Date();
+            const daysSinceStart = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+            const daysRemaining = Math.max(0, 7 - daysSinceStart);
+
+            const daysEl = document.getElementById('challenge-days');
+            if (daysEl) {
+                daysEl.innerText = `ينتهي خلال ${daysRemaining} ${daysRemaining === 1 ? 'يوم' : 'أيام'}`;
+            }
+        }
+
+        // Update points badge
+        const pointsBadge = document.getElementById('points-badge');
+        if (pointsBadge && userData.stats) {
+            const approvedCount = userData.stats.approvedSubmissions || 0;
+            pointsBadge.innerText = approvedCount > 0 ? `+${approvedCount} إثبات` : 'ابدأ الآن';
+        }
+
+    } catch (error) {
+        console.error("Error loading user data:", error);
+    }
 }

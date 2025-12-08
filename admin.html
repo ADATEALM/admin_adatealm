@@ -429,9 +429,35 @@
                             if (action === 'approve') {
                                 const pointsToGive = parseInt(document.getElementById('setting-points').value) || 10;
                                 const userRef = doc(db, "users", uid);
+
+                                // Get current user data
+                                const userDoc = await getDoc(userRef);
+                                const currentPoints = (userDoc.data()?.points || 0) + pointsToGive;
+
+                                // Calculate new rank and level
+                                const newLevel = Math.floor(currentPoints / 100) + 1;
+                                let newRank = 'متدرب';
+                                if (currentPoints >= 5000) newRank = 'قائد';
+                                else if (currentPoints >= 3000) newRank = 'نائب القائد';
+                                else if (currentPoints >= 1500) newRank = 'مشرف أول';
+                                else if (currentPoints >= 500) newRank = 'مشرف نشيط';
+
+                                // Update user document with all stats
                                 await updateDoc(userRef, {
-                                    points: increment(pointsToGive),
-                                    "weeklyProgress.count": increment(1)
+                                    points: currentPoints,
+                                    level: newLevel,
+                                    rank: newRank,
+                                    "weeklyProgress.count": increment(1),
+                                    "stats.approvedSubmissions": increment(1),
+                                    "stats.totalPointsEarned": increment(pointsToGive)
+                                });
+
+                                console.log(`Approved: +${pointsToGive} points. Total: ${currentPoints}, Level: ${newLevel}, Rank: ${newRank}`);
+                            } else {
+                                // Update rejection stats
+                                const userRef = doc(db, "users", uid);
+                                await updateDoc(userRef, {
+                                    "stats.rejectedSubmissions": increment(1)
                                 });
                             }
 
