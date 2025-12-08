@@ -21,24 +21,31 @@ export async function login(email, password) {
 }
 
 // Signup function with enhanced user profile
-export async function signup(email, password, username) {
+export async function signup(email, password, displayName) {
     try {
         // Create Firebase Auth user
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
+        // Generate unique username from email
+        const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+        const randomSuffix = Math.floor(Math.random() * 1000);
+        const username = `${baseUsername}_${randomSuffix}`;
+
         // Update display name
         await updateProfile(user, {
-            displayName: username
+            displayName: displayName
         });
 
         // Create comprehensive user document in Firestore
         await setDoc(doc(db, "users", user.uid), {
             // Basic Info
             uid: user.uid,
-            username: username,
+            displayName: displayName,
+            username: username, // Unique username
             email: email,
-            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=0ea5e9&color=fff`,
+            phoneNumber: null, // Optional phone number
+            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0ea5e9&color=fff`,
 
             // Account Status
             role: 'trainee', // Default role for new users

@@ -147,6 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     // module = await import('./pages/challenge.js');
                     container.innerHTML = `<div class="p-6 text-center text-gray-500">جاري العمل على صفحة التحدي...</div>`;
                     break;
+                case 'members':
+                    module = await import('./pages/members.js');
+                    container.innerHTML = module.renderMembers();
+                    if (module.initMembers) module.initMembers();
+                    break;
+                case 'profile':
+                    module = await import('./pages/profile.js');
+                    container.innerHTML = module.renderProfile();
+                    if (module.initProfile) module.initProfile();
+                    break;
                 case 'login':
                     module = await import('./pages/login.js');
                     container.innerHTML = module.renderLogin();
