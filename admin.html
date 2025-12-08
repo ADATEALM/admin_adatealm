@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - تطبيق المشرفين</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 antialiased font-sans">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div
+                class="w-16 h-16 mx-auto mb-4 bg-brand-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg animate-pulse">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400">جاري التحقق من الصلاحيات...</p>
+        </div>
+    </div>
+
+    <!-- Access Denied Screen -->
+    <div id="access-denied"
+        class="hidden fixed inset-0 bg-gray-50 dark:bg-gray-900 z-40 flex items-center justify-center p-4">
+        <div
+            class="bg-white dark:bg-gray-800 max-w-md w-full p-8 rounded-3xl shadow-2xl border border-red-100 dark:border-red-900/30 text-center">
+            <div
+                class="w-20 h-20 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 text-3xl mb-4">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">الوصول مرفوض</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                عذراً، ليس لديك صلاحية للوصول إلى لوحة التحكم.
+            </p>
+            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl mb-6">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-info-circle ml-1"></i>
+                    لوحة التحكم متاحة فقط للمشرفين المصرح لهم
+                </p>
+            </div>
+            <a href="index.html"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors shadow-md">
+                <i class="fas fa-home"></i>
+                <span>العودة للرئيسية</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold text-gray-900 dark:text-white">لوحة التحكم</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" id="admin-email">...</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="theme-toggle"
+                            class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <a href="index.html"
+                            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold transition-colors">
+                            <i class="fas fa-arrow-right ml-1"></i> الرئيسية
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="space-y-8">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div
+                        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm text-gray-500 dark:text-gray-400">إثباتات معلقة</h3>
+                            <div class="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
+                                <i class="fas fa-clock text-orange-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-orange-500" id="pending-count">0</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm text-gray-500 dark:text-gray-400">تم قبولها</h3>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+                                <i class="fas fa-check-circle text-green-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-green-500" id="approved-count">0</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm text-gray-500 dark:text-gray-400">إجمالي الأعضاء</h3>
+                            <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                                <i class="fas fa-users text-blue-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-blue-500" id="total-users">0</p>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div
+                    class="bg-gradient-to-br from-brand-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-2xl shadow-sm border border-brand-100 dark:border-gray-600">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-sliders-h ml-2 text-brand-600"></i> إعدادات التحدي والنقاط
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-bullseye ml-1"></i> هدف التحدي الأسبوعي
+                            </label>
+                            <input type="number" id="setting-target"
+                                class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm"
+                                value="20" min="1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-star ml-1"></i> نقاط المكافأة لكل منشور
+                            </label>
+                            <input type="number" id="setting-points"
+                                class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm"
+                                value="10" min="1">
+                        </div>
+                    </div>
+                    <button id="save-settings-btn"
+                        class="mt-4 px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-all shadow-md">
+                        <i class="fas fa-save ml-1"></i> حفظ الإعدادات
+                    </button>
+                </div>
+
+                <!-- Submissions -->
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-tasks ml-2"></i> طلبات الإثبات المعلقة
+                    </h2>
+                    <div id="submissions-list" class="space-y-4">
+                        <div class="text-center text-gray-400 py-8">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>جاري تحميل البيانات...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, updateDoc, doc, increment, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDonGBKsvWjcXYcEYXWUeLxtFwcYTJFDMA",
+            authDomain: "admi-c9f65.firebaseapp.com",
+            projectId: "admi-c9f65",
+            storageBucket: "admi-c9f65.firebasestorage.app",
+            messagingSenderId: "708784939336",
+            appId: "1:708784939336:web:cfd94d3bd2cb6fa396137d",
+            measurementId: "G-Z617ZDGNVP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Admin Emails
+        const ADMIN_EMAILS = [
+            'adatealm@gmail.com',
+            'nourmt01@gmail.com',
+            'yacinee474474@gmail.com',
+            's22market@gmail.com',
+            'adatshifa@gmail.com'
+        ];
+
+        function isAdmin(email) {
+            return ADMIN_EMAILS.includes(email.toLowerCase());
+        }
+
+        // Dark Mode
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        if (localStorage.theme === 'dark') {
+            html.classList.add('dark');
+            themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        themeToggle?.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const icon = themeToggle.querySelector('i');
+            if (html.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                localStorage.theme = 'light';
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        });
+
+        // Auth Check
+        onAuthStateChanged(auth, async (user) => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const accessDenied = document.getElementById('access-denied');
+            const dashboard = document.getElementById('admin-dashboard');
+
+            if (!user || !isAdmin(user.email)) {
+                loadingScreen.classList.add('hidden');
+                accessDenied.classList.remove('hidden');
+                return;
+            }
+
+            // User is admin
+            loadingScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            document.getElementById('admin-email').innerText = user.email;
+
+            // Load data
+            await loadDashboard();
+        });
+
+        async function loadDashboard() {
+            try {
+                // Load settings
+                const settingsDoc = await getDoc(doc(db, "settings", "global"));
+                if (settingsDoc.exists()) {
+                    const settings = settingsDoc.data();
+                    document.getElementById('setting-target').value = settings.weeklyTarget || 20;
+                    document.getElementById('setting-points').value = settings.rewardPoints || 10;
+                }
+
+                // Load pending submissions
+                const q = query(collection(db, "proof_submissions"), where("status", "==", "pending"));
+                const querySnapshot = await getDocs(q);
+
+                document.getElementById('pending-count').innerText = querySnapshot.size;
+
+                const listContainer = document.getElementById('submissions-list');
+
+                if (querySnapshot.empty) {
+                    listContainer.innerHTML = `
+                        <div class="text-center text-gray-400 py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+                            <i class="fas fa-check-circle text-5xl mb-3 text-green-100 dark:text-green-900"></i>
+                            <p class="text-lg font-medium">لا توجد طلبات معلقة حالياً</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listContainer.innerHTML = '';
+                const rewardPoints = parseInt(document.getElementById('setting-points').value) || 10;
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const el = document.createElement('div');
+                    el.className = "bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between";
+                    el.innerHTML = `
+                        <div class="flex items-start gap-4 flex-1">
+                            <a href="${data.imageUrl}" target="_blank" class="block w-24 h-24 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden relative group">
+                                <img src="${data.imageUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Proof">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-search-plus text-white text-xl"></i>
+                                </div>
+                            </a>
+                            <div>
+                                <h3 class="font-bold text-gray-900 dark:text-white">${data.username || "User"}</h3>
+                                <a href="${data.postLink}" target="_blank" class="text-brand-600 hover:underline text-sm flex items-center gap-1 mt-1">
+                                    <i class="fas fa-external-link-alt text-xs"></i> رابط المنشور
+                                </a>
+                                <p class="text-xs text-gray-400 mt-1">${new Date(data.submittedAt?.toDate()).toLocaleDateString('ar-EG')}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button class="action-btn flex-1 md:flex-none px-4 py-2 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white rounded-xl transition-all font-bold text-sm" data-action="approve" data-id="${docSnap.id}" data-uid="${data.userId}">
+                                <i class="fas fa-check ml-1"></i> قبول (+${rewardPoints})
+                            </button>
+                            <button class="action-btn flex-1 md:flex-none px-4 py-2 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl transition-all font-bold text-sm" data-action="reject" data-id="${docSnap.id}">
+                                <i class="fas fa-times ml-1"></i> رفض
+                            </button>
+                        </div>
+                    `;
+                    listContainer.appendChild(el);
+                });
+
+                // Event listeners for approve/reject
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const action = btn.dataset.action;
+                        const id = btn.dataset.id;
+                        const uid = btn.dataset.uid;
+                        const parent = btn.closest('.bg-white');
+
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        btn.disabled = true;
+
+                        try {
+                            const submissionRef = doc(db, "proof_submissions", id);
+                            await updateDoc(submissionRef, {
+                                status: action === 'approve' ? 'approved' : 'rejected',
+                                reviewedAt: new Date(),
+                                reviewedBy: auth.currentUser.email
+                            });
+
+                            if (action === 'approve') {
+                                const pointsToGive = parseInt(document.getElementById('setting-points').value) || 10;
+                                const userRef = doc(db, "users", uid);
+                                await updateDoc(userRef, {
+                                    points: increment(pointsToGive),
+                                    "weeklyProgress.count": increment(1)
+                                });
+                            }
+
+                            parent.remove();
+                            const newCount = parseInt(document.getElementById('pending-count').innerText) - 1;
+                            document.getElementById('pending-count').innerText = newCount;
+
+                        } catch (error) {
+                            console.error(error);
+                            alert("حدث خطأ: " + error.message);
+                            btn.innerHTML = action === 'approve' ? 'قبول' : 'رفض';
+                            btn.disabled = false;
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error loading dashboard:", error);
+            }
+        }
+
+        // Save settings
+        document.getElementById('save-settings-btn')?.addEventListener('click', async () => {
+            const btn = document.getElementById('save-settings-btn');
+            const target = parseInt(document.getElementById('setting-target').value);
+            const points = parseInt(document.getElementById('setting-points').value);
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            btn.disabled = true;
+
+            try {
+                await setDoc(doc(db, "settings", "global"), {
+                    weeklyTarget: target,
+                    rewardPoints: points,
+                    updatedBy: auth.currentUser.email,
+                    updatedAt: new Date()
+                });
+
+                btn.innerHTML = '<i class="fas fa-check ml-1"></i> تم الحفظ';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-save ml-1"></i> حفظ الإعدادات';
+                }, 2000);
+            } catch (error) {
+                alert("فشل الحفظ: " + error.message);
+                btn.innerHTML = '<i class="fas fa-save ml-1"></i> حفظ الإعدادات';
+            }
+            btn.disabled = false;
+        });
+    </script>
+</body>
+
+</html>
