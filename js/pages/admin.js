@@ -97,6 +97,19 @@ export function renderAdmin() {
                 </button>
             </div>
 
+            <!-- Reset Points Section -->
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-6 rounded-2xl shadow-soft">
+                <h2 class="text-lg font-bold text-red-800 dark:text-red-300 mb-4">
+                    <i class="fas fa-exclamation-triangle ml-2"></i> منطقة خطرة - تصفير النقاط
+                </h2>
+                <p class="text-sm text-red-700 dark:text-red-400 mb-4">
+                    ⚠️ تحذير: هذا الإجراء سيقوم بتصفير نقاط جميع المشرفين ولا يمكن التراجع عنه!
+                </p>
+                <button id="reset-all-points-btn" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all shadow-md">
+                    <i class="fas fa-redo ml-1"></i> تصفير نقاط جميع المشرفين
+                </button>
+            </div>
+
             <!-- Pending Review Section -->
             <div>
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
@@ -188,6 +201,45 @@ export async function initAdmin() {
             alert("فشل الحفظ: " + error.message);
             btn.innerHTML = '<i class="fas fa-save ml-1"></i> حفظ الإعدادات';
         }
+        btn.disabled = false;
+    });
+
+    // Reset All Points
+    document.getElementById('reset-all-points-btn').addEventListener('click', async () => {
+        if (!confirm('⚠️ تحذير!\n\nهل أنت متأكد من تصفير نقاط جميع المشرفين؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+            return;
+        }
+
+        if (!confirm('تأكيد نهائي: سيتم تصفير النقاط لجميع المشرفين الآن!')) {
+            return;
+        }
+
+        const btn = document.getElementById('reset-all-points-btn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري التصفير...';
+        btn.disabled = true;
+
+        try {
+            const usersQuery = query(collection(db, "users"));
+            const querySnapshot = await getDocs(usersQuery);
+
+            let count = 0;
+            for (const docSnap of querySnapshot.docs) {
+                await updateDoc(doc(db, "users", docSnap.id), {
+                    points: 0,
+                    level: 1,
+                    'weeklyProgress.count': 0
+                });
+                count++;
+            }
+
+            alert(`✅ تم تصفير نقاط ${count} مشرف بنجاح!`);
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            alert('❌ فشل تصفير النقاط: ' + error.message);
+        }
+
+        btn.innerHTML = '<i class="fas fa-redo ml-1"></i> تصفير نقاط جميع المشرفين';
         btn.disabled = false;
     });
 
