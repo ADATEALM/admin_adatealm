@@ -1,3 +1,4 @@
+
 import { rtdb, auth } from '../firebase-config.js';
 // rtdb is initialized instance. We need functions from SDK.
 import { ref, push, onChildAdded, onChildRemoved, query, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -27,6 +28,26 @@ export function renderChat() {
                 </div>
             </div>
 
+            <!-- Privacy Warning Banner -->
+            <div class="bg-gradient-to-r from-orange-500 to-red-500 p-4 shadow-lg border-b-2 border-red-600">
+                <div class="flex items-start gap-3 text-white">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-sm mb-1">⚠️ تحذير خصوصية الصور</h4>
+                        <p class="text-xs leading-relaxed opacity-95">
+                            <strong>تنبيه مهم:</strong> الصور التي تُرسل في المحادثة يتم رفعها عبر سيرفرات خارجية (مثل Imgur).
+                            <br/>
+                            <strong>احذر من إرسال صور شخصية أو خاصة!</strong> النصوص آمنة ومحمية.
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-shield-alt text-xl opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+
             <!-- Messages Area -->
             <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-dark-bg scroll-smooth">
                 <!-- Messages will be injected here -->
@@ -38,33 +59,120 @@ export function renderChat() {
             <!-- Input Area -->
             <form id="chat-form" class="bg-white dark:bg-dark-card p-4 rounded-b-2xl shadow-soft border-t border-gray-100 dark:border-gray-700">
                 <div class="relative flex items-center gap-2">
-                    <input type="text" id="message-input" autocomplete="off" class="block w-full pl-3 pr-10 py-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-colors shadow-sm" placeholder="اكتب رسالتك هنا..." required>
+                    <input type="text" id="message-input" autocomplete="off" class="block w-full pl-3 pr-24 py-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-colors shadow-sm" placeholder="اكتب رسالتك هنا...">
                     
-                    <button type="button" class="absolute left-14 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                        <i class="far fa-smile text-lg"></i>
-                    </button>
-                    <button type="button" class="absolute left-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                    <input type="file" id="image-input" accept="image/*" class="hidden">
+                    
+                    <button type="button" id="attach-btn" class="absolute left-4 p-2 text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors" title="إرفاق صورة">
                         <i class="fas fa-paperclip text-lg"></i>
                     </button>
 
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white p-3 rounded-xl shadow-md transition-colors flex items-center justify-center">
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-xl shadow-md transition-colors flex items-center justify-center">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </form>
+
+            <!-- Image Warning Modal -->
+            <div id="image-warning-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fade-in">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 mx-auto bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-exclamation-triangle text-3xl text-orange-600 dark:text-orange-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">تحذير الخصوصية</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            الصور تُرفع عبر سيرفرات خارجية (Imgur). 
+                            <strong class="text-red-600 dark:text-red-400">لا ترسل صور شخصية أو حساسة!</strong>
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                        <input type="checkbox" id="dont-show-again" class="w-4 h-4 text-brand-600 rounded">
+                        <label for="dont-show-again" class="text-sm text-gray-700 dark:text-gray-300">لا تُظهر هذا مرة أخرى</label>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button id="proceed-upload-btn" class="flex-1 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors">
+                            <i class="fas fa-check ml-1"></i> فهمت، استمر
+                        </button>
+                        <button id="cancel-upload-btn" class="px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition-colors">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }
+
+let pendingImageFile = null;
 
 export function initChat() {
     const messagesContainer = document.getElementById('messages-container');
     const chatForm = document.getElementById('chat-form');
     const messageInput = document.getElementById('message-input');
+    const attachBtn = document.getElementById('attach-btn');
+    const imageInput = document.getElementById('image-input');
+    const imageWarningModal = document.getElementById('image-warning-modal');
+    const proceedBtn = document.getElementById('proceed-upload-btn');
+    const cancelBtn = document.getElementById('cancel-upload-btn');
+    const dontShowCheckbox = document.getElementById('dont-show-again');
 
     // Auto-scroll to bottom
     const scrollToBottom = () => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
+
+    // Handle attach button click
+    attachBtn?.addEventListener('click', () => {
+        imageInput.click();
+    });
+
+    // Handle image selection
+    imageInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Check if user disabled warning
+            const hideWarning = localStorage.getItem('hideImageWarning') === 'true';
+
+            if (hideWarning) {
+                uploadImage(file);
+            } else {
+                pendingImageFile = file;
+                imageWarningModal?.classList.remove('hidden');
+            }
+        }
+    });
+
+    // Proceed with upload
+    proceedBtn?.addEventListener('click', () => {
+        if (dontShowCheckbox.checked) {
+            localStorage.setItem('hideImageWarning', 'true');
+        }
+
+        if (pendingImageFile) {
+            uploadImage(pendingImageFile);
+            pendingImageFile = null;
+        }
+
+        imageWarningModal?.classList.add('hidden');
+        imageInput.value = '';
+    });
+
+    // Cancel upload
+    cancelBtn?.addEventListener('click', () => {
+        pendingImageFile = null;
+        imageWarningModal?.classList.add('hidden');
+        imageInput.value = '';
+    });
+
+    // Upload image function (placeholder - needs Imgur API)
+    function uploadImage(file) {
+        // TODO: Implement Imgur upload
+        alert('ميزة رفع الصور قيد التطوير');
+        console.log('Image to upload:', file.name);
+    }
 
     // Send Message
     chatForm.addEventListener('submit', (e) => {

@@ -44,21 +44,97 @@ export function renderProfile() {
 
                     <!-- Stats Grid -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="text-2xl font-bold text-brand-600" id="profile-points">0</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">النقاط</div>
+                        <div class="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+                            <div class="text-3xl font-bold text-yellow-600 dark:text-yellow-400" id="profile-points">0</div>
+                            <div class="text-xs text-yellow-700 dark:text-yellow-500 mt-1 font-medium">النقاط</div>
+                            <div class="mt-2">
+                                <i class="fas fa-star text-yellow-500"></i>
+                            </div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="text-2xl font-bold text-purple-600" id="profile-level">1</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">المستوى</div>
+                        <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400" id="profile-level">1</div>
+                            <div class="text-xs text-purple-700 dark:text-purple-500 mt-1 font-medium">المستوى</div>
+                            <div class="mt-2">
+                                <i class="fas fa-layer-group text-purple-500"></i>
+                            </div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="text-2xl font-bold text-green-600" id="profile-rank">متدرب</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">الرتبة</div>
+                        <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
+                            <div class="text-xl font-bold text-green-600 dark:text-green-400" id="profile-rank">متدرب</div>
+                            <div class="text-xs text-green-700 dark:text-green-500 mt-1 font-medium">الرتبة</div>
+                            <div class="mt-2">
+                                <i class="fas fa-shield-alt text-green-500" id="profile-rank-icon"></i>
+                            </div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="text-2xl font-bold text-orange-600" id="profile-weekly">0/20</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">هذا الأسبوع</div>
+                        <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                            <div class="text-3xl font-bold text-orange-600 dark:text-orange-400" id="profile-weekly">0/20</div>
+                            <div class="text-xs text-orange-700 dark:text-orange-500 mt-1 font-medium">هذا الأسبوع</div>
+                            <div class="mt-2">
+                                <i class="fas fa-fire text-orange-500"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Statistics Card -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 mb-6 border border-blue-100 dark:border-gray-600">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-blue-600"></i>
+                            إحصائيات مفصلة
+                        </h3>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <!-- Total Submissions -->
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-upload text-blue-500 text-xl"></i>
+                                    <span class="text-2xl font-bold text-gray-900 dark:text-white" id="stat-total-submissions">0</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">إجمالي الإثباتات</p>
+                            </div>
+
+                            <!-- Approved -->
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                                    <span class="text-2xl font-bold text-green-600" id="stat-approved">0</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">تم قبولها</p>
+                            </div>
+
+                            <!-- Rejected -->
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                                    <span class="text-2xl font-bold text-red-600" id="stat-rejected">0</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">تم رفضها</p>
+                            </div>
+
+                            <!-- Success Rate -->
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-percentage text-purple-500 text-xl"></i>
+                                    <span class="text-2xl font-bold text-purple-600" id="stat-success-rate">0%</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">معدل النجاح</p>
+                            </div>
+
+                            <!-- Days Since Joining -->
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-calendar-day text-indigo-500 text-xl"></i>
+                                    <span class="text-2xl font-bold text-indigo-600" id="stat-days-joined">0</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">يوماً منذ الانضمام</p>
+                            </div>
+
+                            <!-- Streak -->
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-fire-alt text-orange-500 text-xl"></i>
+                                    <span class="text-2xl font-bold text-orange-600" id="stat-streak">0</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">أيام متتالية</p>
+                            </div>
                         </div>
                     </div>
 
@@ -264,6 +340,34 @@ export async function initProfile() {
             }
         } catch (error) {
             console.error("Error checking Telegram group eligibility:", error);
+        }
+
+        // Update advanced statistics
+        const stats = userData.stats || {};
+        const totalSubmissions = (stats.approvedSubmissions || 0) + (stats.rejectedSubmissions || 0);
+        const approvedSubmissions = stats.approvedSubmissions || 0;
+        const rejectedSubmissions = stats.rejectedSubmissions || 0;
+        const successRate = totalSubmissions > 0 ? Math.round((approvedSubmissions / totalSubmissions) * 100) : 0;
+
+        // Days since joining
+        const daysSinceJoining = userData.createdAt ?
+            Math.floor((new Date() - userData.createdAt.toDate()) / (1000 * 60 * 60 * 24)) : 0;
+
+        // Current streak
+        const currentStreak = stats.currentStreak || 0;
+
+        // Update stat elements
+        document.getElementById('stat-total-submissions').innerText = totalSubmissions;
+        document.getElementById('stat-approved').innerText = approvedSubmissions;
+        document.getElementById('stat-rejected').innerText = rejectedSubmissions;
+        document.getElementById('stat-success-rate').innerText = `${successRate}%`;
+        document.getElementById('stat-days-joined').innerText = daysSinceJoining;
+        document.getElementById('stat-streak').innerText = currentStreak;
+
+        // Update rank icon in stats grid
+        const rankIconEl = document.getElementById('profile-rank-icon');
+        if (rankIconEl && rankInfo.icon) {
+            rankIconEl.className = `${rankInfo.icon} text-green-500`;
         }
 
         // Edit Profile Modal
