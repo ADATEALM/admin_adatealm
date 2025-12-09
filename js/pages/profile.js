@@ -7,22 +7,25 @@ export function renderProfile() {
     return `
         <div class="animate-fade-in space-y-6">
             <!-- Header -->
-            <div class="bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-1/2 -translate-y-1/2"></div>
+            <div class="bg-gradient-to-br from-brand-600 to-brand-800 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3 group-hover:bg-white/15 transition-all duration-700"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
                 <div class="relative z-10">
-                    <h1 class="text-2xl font-bold mb-1">الملف الشخصي</h1>
-                    <p class="text-brand-100 text-sm">إدارة معلوماتك الشخصية</p>
+                    <h1 class="text-3xl font-bold mb-2 tracking-tight">الملف الشخصي</h1>
+                    <p class="text-brand-100/90 text-sm font-medium">إدارة هويتك الرقمية ومتابعة إنجازاتك</p>
                 </div>
             </div>
 
             <!-- Profile Card -->
-            <div class="bg-white dark:bg-dark-card rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="bg-white dark:bg-dark-card rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden relative">
                 <!-- Cover & Avatar -->
-                <div class="relative h-32 bg-gradient-to-r from-brand-500 to-blue-500">
-                    <div class="absolute -bottom-16 right-6">
-                        <div class="relative">
-                            <img id="profile-avatar" src="" alt="Avatar" class="w-32 h-32 rounded-2xl ring-4 ring-white dark:ring-gray-800 shadow-lg object-cover">
-                            <button id="change-avatar-btn" class="absolute bottom-0 left-0 bg-brand-600 hover:bg-brand-700 text-white p-2 rounded-lg shadow-lg transition-colors">
+                <div class="relative h-48 bg-gradient-to-r from-brand-500 via-blue-500 to-indigo-600">
+                    <div class="absolute inset-0 bg-pattern opacity-10"></div>
+                    <div class="absolute -bottom-16 right-8">
+                        <div class="relative group">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500"></div>
+                            <img id="profile-avatar" src="" alt="Avatar" class="relative w-32 h-32 rounded-2xl ring-4 ring-white dark:ring-gray-800 shadow-2xl object-cover bg-white dark:bg-gray-800">
+                            <button id="change-avatar-btn" class="absolute bottom-2 left-2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-xl shadow-lg transition-all transform hover:scale-110 active:scale-95 backdrop-blur-sm">
                                 <i class="fas fa-camera text-sm"></i>
                             </button>
                         </div>
@@ -30,267 +33,325 @@ export function renderProfile() {
                 </div>
 
                 <!-- Profile Info -->
-                <div class="pt-20 px-6 pb-6">
-                    <div class="flex justify-between items-start mb-6">
+                <div class="pt-20 px-8 pb-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
                         <div>
-                            <h2 id="profile-display-name" class="text-2xl font-bold text-gray-900 dark:text-white mb-1">...</h2>
-                            <p id="profile-username" class="text-brand-600 dark:text-brand-400 font-mono text-lg mb-1">@...</p>
-                            <p id="profile-email" class="text-gray-500 dark:text-gray-400 text-sm">...</p>
+                            <h2 id="profile-display-name" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">...</h2>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-mono text-sm font-semibold border border-brand-100 dark:border-brand-800/50">
+                                    <i class="fas fa-hashtag text-xs opacity-70 ml-1"></i><span id="profile-username">...</span>
+                                </span>
+                                <span id="profile-academic-wrapper" class="hidden px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium border border-indigo-100 dark:border-indigo-800/50">
+                                    <i class="fas fa-graduation-cap ml-1.5 opacity-70"></i><span id="profile-academic-year"></span>
+                                </span>
+                            </div>
+                            <p id="profile-email" class="text-gray-500 dark:text-gray-400 text-sm mt-2 opacity-80">...</p>
+                            <p id="profile-bio" class="text-gray-600 dark:text-gray-300 text-sm mt-3 max-w-2xl leading-relaxed hidden">...</p>
                         </div>
-                        <button id="edit-profile-btn" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors shadow-sm">
-                            <i class="fas fa-edit ml-1"></i> تعديل
+                        <button id="edit-profile-btn" class="group px-5 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0">
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-pen-to-square group-hover:rotate-12 transition-transform"></i>
+                                <span>تعديل البيانات</span>
+                            </span>
                         </button>
                     </div>
 
                     <!-- Stats Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
-                            <div class="text-3xl font-bold text-yellow-600 dark:text-yellow-400" id="profile-points">0</div>
-                            <div class="text-xs text-yellow-700 dark:text-yellow-500 mt-1 font-medium">النقاط</div>
-                            <div class="mt-2">
-                                <i class="fas fa-star text-yellow-500"></i>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <!-- Points -->
+                        <div class="relative overflow-hidden p-5 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/10 rounded-2xl border border-yellow-100 dark:border-yellow-900/30 group hover:shadow-md transition-shadow">
+                            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <i class="fas fa-star text-4xl text-yellow-500"></i>
                             </div>
+                            <div class="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-1" id="profile-points">0</div>
+                            <div class="text-xs font-semibold text-yellow-700 dark:text-yellow-500 tracking-wide">النقاط الكلية</div>
                         </div>
-                        <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400" id="profile-level">1</div>
-                            <div class="text-xs text-purple-700 dark:text-purple-500 mt-1 font-medium">المستوى</div>
-                            <div class="mt-2">
-                                <i class="fas fa-layer-group text-purple-500"></i>
+
+                        <!-- Level -->
+                        <div class="relative overflow-hidden p-5 bg-gradient-to-br from-purple-50 to-fuchsia-50 dark:from-purple-900/10 dark:to-fuchsia-900/10 rounded-2xl border border-purple-100 dark:border-purple-900/30 group hover:shadow-md transition-shadow">
+                            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <i class="fas fa-layer-group text-4xl text-purple-500"></i>
                             </div>
+                            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1" id="profile-level">1</div>
+                            <div class="text-xs font-semibold text-purple-700 dark:text-purple-500 tracking-wide">المستوى</div>
                         </div>
-                        <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
-                            <div class="text-xl font-bold text-green-600 dark:text-green-400" id="profile-rank">متدرب</div>
-                            <div class="text-xs text-green-700 dark:text-green-500 mt-1 font-medium">الرتبة</div>
-                            <div class="mt-2">
-                                <i class="fas fa-shield-alt text-green-500" id="profile-rank-icon"></i>
+
+                        <!-- Rank -->
+                        <div class="relative overflow-hidden p-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-2xl border border-green-100 dark:border-green-900/30 group hover:shadow-md transition-shadow">
+                            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <i class="fas fa-shield-alt text-4xl text-green-500"></i>
                             </div>
+                            <div class="text-xl font-bold text-green-600 dark:text-green-400 mb-1 truncate" id="profile-rank">متدرب</div>
+                            <div class="text-xs font-semibold text-green-700 dark:text-green-500 tracking-wide">الرتبة الحالية</div>
                         </div>
-                        <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800">
-                            <div class="text-3xl font-bold text-orange-600 dark:text-orange-400" id="profile-weekly">0/20</div>
-                            <div class="text-xs text-orange-700 dark:text-orange-500 mt-1 font-medium">هذا الأسبوع</div>
-                            <div class="mt-2">
-                                <i class="fas fa-fire text-orange-500"></i>
+
+                        <!-- Weekly -->
+                        <div class="relative overflow-hidden p-5 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 group hover:shadow-md transition-shadow">
+                            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <i class="fas fa-fire text-4xl text-orange-500"></i>
                             </div>
+                            <div class="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1" id="profile-weekly">0/20</div>
+                            <div class="text-xs font-semibold text-orange-700 dark:text-orange-500 tracking-wide">التقدم الأسبوعي</div>
+                        </div>
+                    </div>
+
+                    <!-- Badges Section -->
+                    <div id="badges-section" class="hidden mb-8">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-medal text-brand-500"></i>
+                            الأوسمة والإنجازات
+                        </h3>
+                        <div class="flex flex-wrap gap-4" id="badges-container">
+                            <!-- Badges will be injected here -->
                         </div>
                     </div>
 
                     <!-- Advanced Statistics Card -->
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 mb-6 border border-blue-100 dark:border-gray-600">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                            <i class="fas fa-chart-line text-blue-600"></i>
-                            إحصائيات مفصلة
-                        </h3>
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                <i class="fas fa-chart-pie text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">إحصائيات الأداء</h3>
+                        </div>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-4">
                             <!-- Total Submissions -->
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <i class="fas fa-upload text-blue-500 text-xl"></i>
-                                    <span class="text-2xl font-bold text-gray-900 dark:text-white" id="stat-total-submissions">0</span>
+                            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+                                    <i class="fas fa-upload"></i>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">إجمالي الإثباتات</p>
+                                <div>
+                                    <div class="text-xl font-bold text-gray-900 dark:text-white" id="stat-total-submissions">0</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">إجمالي المشاركات</div>
+                                </div>
                             </div>
 
                             <!-- Approved -->
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                                    <span class="text-2xl font-bold text-green-600" id="stat-approved">0</span>
+                            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500">
+                                    <i class="fas fa-check"></i>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">تم قبولها</p>
+                                <div>
+                                    <div class="text-xl font-bold text-green-600" id="stat-approved">0</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">مقبولة</div>
+                                </div>
                             </div>
 
                             <!-- Rejected -->
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <i class="fas fa-times-circle text-red-500 text-xl"></i>
-                                    <span class="text-2xl font-bold text-red-600" id="stat-rejected">0</span>
+                            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500">
+                                    <i class="fas fa-times"></i>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">تم رفضها</p>
+                                <div>
+                                    <div class="text-xl font-bold text-red-600" id="stat-rejected">0</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">مرفوضة</div>
+                                </div>
                             </div>
 
                             <!-- Success Rate -->
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <i class="fas fa-percentage text-purple-500 text-xl"></i>
-                                    <span class="text-2xl font-bold text-purple-600" id="stat-success-rate">0%</span>
+                            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-500">
+                                    <i class="fas fa-percentage"></i>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">معدل النجاح</p>
+                                <div>
+                                    <div class="text-xl font-bold text-purple-600" id="stat-success-rate">0%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">نسبة القبول</div>
+                                </div>
                             </div>
 
                             <!-- Days Since Joining -->
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <i class="fas fa-calendar-day text-indigo-500 text-xl"></i>
-                                    <span class="text-2xl font-bold text-indigo-600" id="stat-days-joined">0</span>
+                            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500">
+                                    <i class="fas fa-calendar-day"></i>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">يوماً منذ الانضمام</p>
+                                <div>
+                                    <div class="text-xl font-bold text-indigo-600" id="stat-days-joined">0</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">يوماً معنا</div>
+                                </div>
                             </div>
 
                             <!-- Streak -->
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                                <div class="flex items-center justify-between mb-2">
-                                    <i class="fas fa-fire-alt text-orange-500 text-xl"></i>
-                                    <span class="text-2xl font-bold text-orange-600" id="stat-streak">0</span>
+                            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500">
+                                    <i class="fas fa-fire-alt"></i>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">أيام متتالية</p>
+                                <div>
+                                    <div class="text-xl font-bold text-orange-600" id="stat-streak">0</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">أيام متتالية</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Telegram VIP Group Button -->
                     <div id="telegram-vip-section" class="hidden mb-6">
-                        <a href="https://t.me/+SkOYOSnH20ZkNzRk" target="_blank" class="block p-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg transition-all transform hover:scale-[1.02]">
-                            <div class="flex items-center justify-between text-white">
-                                <div class="flex items-center gap-3">
-                                    <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                                        <i class="fab fa-telegram text-2xl"></i>
+                        <a href="https://t.me/+SkOYOSnH20ZkNzRk" target="_blank" class="block group relative overflow-hidden p-6 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 rounded-2xl shadow-lg transition-all transform hover:scale-[1.01]">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+                            <div class="relative flex items-center justify-between text-white">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-white/20 p-3.5 rounded-xl backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                                        <i class="fab fa-telegram text-3xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="font-bold text-lg">مجموعة الدماء البيضاء VIP</h3>
-                                        <p class="text-sm text-blue-100">انضم الآن للمجموعة الحصرية</p>
+                                        <p class="text-blue-100 text-sm">مكافأة لتميزك! انضم للنخبة الآن</p>
                                     </div>
                                 </div>
-                                <i class="fas fa-arrow-left text-xl"></i>
+                                <div class="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:translate-x-1 transition-transform">
+                                    <i class="fas fa-arrow-left"></i>
+                                </div>
                             </div>
                         </a>
                     </div>
 
-                    <!-- Contact Info -->
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-phone text-gray-400"></i>
-                                <span class="text-sm text-gray-600 dark:text-gray-400">رقم الهاتف</span>
+                    <!-- Contact & Info List -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">رقم الهاتف مرتبط</p>
+                                    <p id="profile-phone" class="font-medium text-gray-900 dark:text-white mt-0.5">...</p>
+                                </div>
                             </div>
-                            <span id="profile-phone" class="text-sm font-medium text-gray-900 dark:text-white">غير محدد</span>
+                            <i class="fas fa-check-circle text-green-500 opacity-50"></i>
                         </div>
-                    </div>
 
-                    <!-- Account Info -->
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="flex items-center gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700">
                                 <i class="fas fa-calendar text-gray-400"></i>
-                                <span class="text-sm text-gray-600 dark:text-gray-400">تاريخ الانضمام</span>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">تاريخ الانضمام</p>
+                                    <p id="profile-joined" class="text-sm font-medium text-gray-900 dark:text-white mt-0.5">...</p>
+                                </div>
                             </div>
-                            <span id="profile-joined" class="text-sm font-medium text-gray-900 dark:text-white">...</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700">
                                 <i class="fas fa-clock text-gray-400"></i>
-                                <span class="text-sm text-gray-600 dark:text-gray-400">آخر تسجيل دخول</span>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">آخر ظهور</p>
+                                    <p id="profile-last-login" class="text-sm font-medium text-gray-900 dark:text-white mt-0.5">...</p>
+                                </div>
                             </div>
-                            <span id="profile-last-login" class="text-sm font-medium text-gray-900 dark:text-white">...</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Actions -->
-            <div class="bg-white dark:bg-dark-card rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700 p-6">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">إجراءات الحساب</h3>
-                <div class="space-y-3">
-                    <button id="logout-btn" class="w-full flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-colors font-medium">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>تسجيل الخروج</span>
-                        </div>
-                        <i class="fas fa-chevron-left text-sm"></i>
-                    </button>
-                </div>
-            </div>
+            <!-- Logout -->
+            <button id="logout-btn" class="w-full mt-4 p-4 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl border border-red-100 dark:border-red-900/30 transition-all font-bold flex items-center justify-center gap-2 group">
+                <i class="fas fa-sign-out-alt group-hover:-translate-x-1 transition-transform"></i>
+                <span>تسجيل الخروج من الحساب</span>
+            </button>
         </div>
 
         <!-- Edit Profile Modal -->
-        <div id="edit-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
+         <div id="edit-modal" class="hidden fixed inset-0 z-50 overflow-hidden flex items-end sm:items-center justify-center">
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" id="close-modal-overlay"></div>
+            
+            <div class="relative w-full max-w-lg bg-white dark:bg-dark-card rounded-t-3xl sm:rounded-3xl shadow-2xl transform transition-all animate-slide-up sm:animate-fade-in max-h-[90vh] overflow-y-auto">
+                <!-- Sticky Header -->
+                <div class="sticky top-0 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm z-10 px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">تعديل الملف الشخصي</h3>
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <button id="close-modal-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 transition-colors">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
 
-                <form id="edit-profile-form" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الاسم الكامل</label>
-                        <input type="text" id="edit-display-name" class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500" placeholder="أحمد محمد" required>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            الاسم الرمزي (Username)
-                            <span class="text-xs text-gray-500">- سيظهر مع #</span>
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-mono">
-                                #
+                <div class="p-6">
+                    <form id="edit-profile-form" class="space-y-5">
+                        <!-- Photo Section -->
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+                            <img id="form-avatar-preview" src="" class="w-16 h-16 rounded-full object-cover ring-2 ring-white dark:ring-gray-700">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">صورة الملف الشخصي</label>
+                                <input type="url" id="edit-photo-url" class="block w-full text-sm p-2 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-shadow" placeholder="https://example.com/photo.jpg">
                             </div>
-                            <input type="text" id="edit-username" class="block w-full pr-8 pl-3 p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 font-mono" placeholder="ahmad_123" required pattern="[a-zA-Z0-9_]+" title="حروف وأرقام و _ فقط">
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">حروف إنجليزية وأرقام و _ فقط (بدون مسافات)</p>
-                        <p id="username-availability" class="mt-1 text-xs"></p>
-                    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رقم الهاتف (اختياري)</label>
-                        <input type="tel" id="edit-phone" class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500" placeholder="+966 50 123 4567" dir="ltr">
-                        <p class="mt-1 text-xs text-gray-500">يمكنك تركه فارغاً</p>
-                    </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">الاسم الكامل</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-user-tag"></i>
+                                    </div>
+                                    <input type="text" id="edit-display-name" class="block w-full pr-10 p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all font-medium" placeholder="أحمد محمد" required>
+                                </div>
+                            </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رابط الصورة الشخصية</label>
-                        <input type="url" id="edit-photo-url" class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500" placeholder="https://example.com/photo.jpg">
-                        <p class="mt-1 text-xs text-gray-500">اتركه فارغاً لاستخدام الصورة الافتراضية</p>
-                    </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                    الاسم الرمزي (Hashtag)
+                                    <span class="text-xs font-normal text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded-full mr-2">يستخدم للبحث والمنشن</span>
+                                </label>
+                                <div class="relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-600 focus-within:ring-2 focus-within:ring-brand-500/50 focus-within:border-brand-500 transition-all">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 font-bold text-lg">#</span>
+                                    </div>
+                                    <input type="text" id="edit-username" class="block w-full pr-8 pl-4 py-3 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-white font-mono dir-ltr placeholder:text-right" placeholder="lion_heart" required pattern="[a-zA-Z0-9_]+"  style="direction: ltr; text-align: left;">
+                                </div>
+                                <div class="flex justify-between items-start mt-1.5 px-1">
+                                    <p class="text-xs text-gray-500">استخدم الإنجليزية، الأرقام، والشرطة السفلية (_) فقط</p>
+                                    <p id="username-availability" class="text-xs font-medium min-h-[1.25em]"></p>
+                                </div>
+                            </div>
 
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" id="save-profile-btn" class="flex-1 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors">
-                            <i class="fas fa-save ml-1"></i> حفظ التغييرات
-                        </button>
-                        <button type="button" id="cancel-edit-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition-colors">
-                            إلغاء
-                        </button>
-                    </div>
-                </form>
+                            <!-- Bio -->
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">نبذة عني (Bio)</label>
+                                <textarea id="edit-bio" rows="3" class="block w-full p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all resize-none" placeholder="اكتب نبذة مختصرة عن نفسك..."></textarea>
+                            </div>
+
+                            <!-- Academic Year -->
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">السنة الدراسية</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <input type="text" id="edit-academic-year" class="block w-full pr-10 p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all" placeholder="مثال: الثالث ثانوي، جامعي..." list="academic-years-list">
+                                    <datalist id="academic-years-list">
+                                        <option value="الأول متوسط">
+                                        <option value="الثاني متوسط">
+                                        <option value="الثالث متوسط">
+                                        <option value="الأول ثانوي">
+                                        <option value="الثاني ثانوي">
+                                        <option value="الثالث ثانوي">
+                                        <option value="جامعي">
+                                        <option value="خريج">
+                                    </datalist>
+                                </div>
+                            </div>
+
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رقم الهاتف</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <input type="tel" id="edit-phone" class="block w-full pr-10 p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all" placeholder="05XXXXXXXX" dir="ltr" style="text-align: right;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
+                            <button type="button" id="cancel-edit-btn" class="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-bold transition-colors w-1/3">
+                                إلغاء
+                            </button>
+                            <button type="submit" id="save-profile-btn" class="flex-1 py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-brand-500/30 flex justify-center items-center">
+                                <span class="btn-text">حفظ التغييرات</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- Change Avatar Modal -->
-        <div id="avatar-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-dark-card rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fade-in">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">تغيير الصورة الشخصية</h3>
-                    <button id="close-avatar-modal-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رابط الصورة</label>
-                        <input type="url" id="new-avatar-url" class="block w-full p-3 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500" placeholder="https://example.com/avatar.jpg">
-                    </div>
-
-                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-                        <p class="text-xs text-blue-800 dark:text-blue-300">
-                            <i class="fas fa-info-circle ml-1"></i>
-                            يمكنك استخدام روابط من مواقع مثل Imgur أو أي رابط صورة مباشر
-                        </p>
-                    </div>
-
-                    <div class="flex gap-3">
-                        <button id="save-avatar-btn" class="flex-1 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors">
-                            <i class="fas fa-check ml-1"></i> حفظ
-                        </button>
-                        <button id="cancel-avatar-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition-colors">
-                            إلغاء
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Change Avatar Modal (Simplified) -->
+        <input type="file" id="avatar-upload-input" accept="image/*" class="hidden">
     `;
 }
 
@@ -306,221 +367,252 @@ export async function initProfile() {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const userData = userDoc.exists() ? userDoc.data() : {};
 
-        // Update UI
+        // Update UI Helpers
+        const updateElementText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        };
+        const updateElementSrc = (id, src) => {
+            const el = document.getElementById(id);
+            if (el) el.src = src;
+        };
+
+        // --- Basic Info Update ---
         const avatar = userData.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.displayName || 'User')}&background=0ea5e9&color=fff`;
-        document.getElementById('profile-avatar').src = avatar;
-        document.getElementById('profile-display-name').innerText = userData.displayName || user.displayName || 'مستخدم';
-        document.getElementById('profile-username').innerText = '@' + (userData.username || 'user');
-        document.getElementById('profile-email').innerText = user.email;
-        document.getElementById('profile-phone').innerText = userData.phoneNumber || 'غير محدد';
-        document.getElementById('profile-points').innerText = userData.points || 0;
-        document.getElementById('profile-level').innerText = userData.level || 1;
-        document.getElementById('profile-rank').innerText = userData.rank || 'متدرب';
-        document.getElementById('profile-weekly').innerText = `${userData.weeklyProgress?.count || 0}/20`;
+        updateElementSrc('profile-avatar', avatar);
 
-        if (userData.createdAt) {
-            document.getElementById('profile-joined').innerText = new Date(userData.createdAt.toDate()).toLocaleDateString('ar-EG');
-        }
-        if (userData.lastLogin) {
-            document.getElementById('profile-last-login').innerText = new Date(userData.lastLogin.toDate()).toLocaleDateString('ar-EG');
+        updateElementText('profile-display-name', userData.displayName || user.displayName || 'مستخدم');
+        updateElementText('profile-username', `${userData.username || 'user'}`);
+        updateElementText('profile-email', user.email);
+        updateElementText('profile-phone', userData.phoneNumber || 'غير محدد');
+
+        // Bio Logic
+        if (userData.bio) {
+            updateElementText('profile-bio', userData.bio);
+            document.getElementById('profile-bio').classList.remove('hidden');
+        } else {
+            document.getElementById('profile-bio').classList.add('hidden');
         }
 
-        // Check if user qualifies for Telegram VIP group
+        // Academic Year Logic
+        if (userData.academicYear) {
+            updateElementText('profile-academic-year', userData.academicYear);
+            document.getElementById('profile-academic-wrapper').classList.remove('hidden');
+            document.getElementById('profile-academic-wrapper').classList.add('flex', 'items-center');
+        } else {
+            document.getElementById('profile-academic-wrapper').classList.add('hidden');
+        }
+
+        // Badges Logic
+        if (userData.badges && userData.badges.length > 0) {
+            const badgesContainer = document.getElementById('badges-container');
+            badgesContainer.innerHTML = userData.badges.map(badge => `
+                <div class="flex items-center gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-500 rounded-lg border border-yellow-200 dark:border-yellow-800/50" title="${badge.description || ''}">
+                    <i class="${badge.icon || 'fas fa-medal'}"></i>
+                    <span class="text-sm font-bold">${badge.name}</span>
+                </div>
+            `).join('');
+            document.getElementById('badges-section').classList.remove('hidden');
+        }
+
+        // Stats
+        updateElementText('profile-points', userData.points || 0);
+        updateElementText('profile-level', userData.level || 1);
+        updateElementText('profile-rank', userData.rank || 'متدرب');
+        updateElementText('profile-weekly', `${userData.weeklyProgress?.count || 0}/20`);
+
+        if (userData.createdAt) updateElementText('profile-joined', new Date(userData.createdAt.toDate()).toLocaleDateString('ar-EG'));
+        if (userData.lastLogin) updateElementText('profile-last-login', new Date(userData.lastLogin.toDate()).toLocaleDateString('ar-EG'));
+
+        // --- Telegram VIP Check ---
         try {
             const settingsDoc = await getDoc(doc(db, "settings", "global"));
             if (settingsDoc.exists()) {
                 const settings = settingsDoc.data();
                 const requiredPoints = settings.telegramGroupPoints || 500;
-                const userPoints = userData.points || 0;
-
-                // Show Telegram button if user has enough points
-                if (userPoints >= requiredPoints) {
+                if ((userData.points || 0) >= requiredPoints) {
                     document.getElementById('telegram-vip-section').classList.remove('hidden');
                 }
             }
-        } catch (error) {
-            console.error("Error checking Telegram group eligibility:", error);
-        }
+        } catch (e) { console.error("VIP check error:", e); }
 
-        // Update advanced statistics
+        // --- Advanced Stats ---
         const stats = userData.stats || {};
-        const totalSubmissions = (stats.approvedSubmissions || 0) + (stats.rejectedSubmissions || 0);
-        const approvedSubmissions = stats.approvedSubmissions || 0;
-        const rejectedSubmissions = stats.rejectedSubmissions || 0;
-        const successRate = totalSubmissions > 0 ? Math.round((approvedSubmissions / totalSubmissions) * 100) : 0;
+        const total = (stats.approvedSubmissions || 0) + (stats.rejectedSubmissions || 0);
+        const approved = stats.approvedSubmissions || 0;
+        const successRate = total > 0 ? Math.round((approved / total) * 100) : 0;
+        const daysJoined = userData.createdAt ? Math.floor((new Date() - userData.createdAt.toDate()) / (1000 * 60 * 60 * 24)) : 0;
 
-        // Days since joining
-        const daysSinceJoining = userData.createdAt ?
-            Math.floor((new Date() - userData.createdAt.toDate()) / (1000 * 60 * 60 * 24)) : 0;
+        updateElementText('stat-total-submissions', total);
+        updateElementText('stat-approved', approved);
+        updateElementText('stat-rejected', stats.rejectedSubmissions || 0);
+        updateElementText('stat-success-rate', `${successRate}%`);
+        updateElementText('stat-days-joined', daysJoined);
+        updateElementText('stat-streak', stats.currentStreak || 0);
 
-        // Current streak
-        const currentStreak = stats.currentStreak || 0;
 
-        // Update stat elements
-        document.getElementById('stat-total-submissions').innerText = totalSubmissions;
-        document.getElementById('stat-approved').innerText = approvedSubmissions;
-        document.getElementById('stat-rejected').innerText = rejectedSubmissions;
-        document.getElementById('stat-success-rate').innerText = `${successRate}%`;
-        document.getElementById('stat-days-joined').innerText = daysSinceJoining;
-        document.getElementById('stat-streak').innerText = currentStreak;
-
-        // Update rank icon in stats grid
-        const rankIconEl = document.getElementById('profile-rank-icon');
-        if (rankIconEl && rankInfo.icon) {
-            rankIconEl.className = `${rankInfo.icon} text-green-500`;
-        }
-
-        // Edit Profile Modal
+        // --- Editing Logic ---
         const editModal = document.getElementById('edit-modal');
         const editBtn = document.getElementById('edit-profile-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const editForm = document.getElementById('edit-profile-form');
-        const usernameInput = document.getElementById('edit-username');
-        const availabilityMsg = document.getElementById('username-availability');
+        const closeModals = () => {
+            editModal.classList.add('hidden');
+            editModal.classList.remove('flex');
+        };
 
+        // Open Edit Modal
         editBtn.addEventListener('click', () => {
             document.getElementById('edit-display-name').value = userData.displayName || user.displayName || '';
             document.getElementById('edit-username').value = userData.username || '';
             document.getElementById('edit-phone').value = userData.phoneNumber || '';
+            document.getElementById('edit-academic-year').value = userData.academicYear || '';
             document.getElementById('edit-photo-url').value = userData.photoURL || '';
+            document.getElementById('form-avatar-preview').src = userData.photoURL || avatar;
+
             editModal.classList.remove('hidden');
+            editModal.classList.add('flex');
+            document.getElementById('username-availability').innerText = ''; // Reset status
         });
 
-        closeModalBtn.addEventListener('click', () => editModal.classList.add('hidden'));
-        cancelEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+        // Close Handlers
+        document.getElementById('close-modal-btn').addEventListener('click', closeModals);
+        document.getElementById('cancel-edit-btn').addEventListener('click', closeModals);
+        document.getElementById('close-modal-overlay').addEventListener('click', closeModals);
 
-        // Check username availability
+        // Photo URL Preview
+        const photoInput = document.getElementById('edit-photo-url');
+        photoInput.addEventListener('input', (e) => {
+            const url = e.target.value;
+            if (url && url.length > 10) {
+                document.getElementById('form-avatar-preview').src = url;
+            }
+        });
+
+        // Username Check
+        const usernameInput = document.getElementById('edit-username');
+        const availabilityMsg = document.getElementById('username-availability');
+
         usernameInput.addEventListener('input', async (e) => {
             const username = e.target.value.toLowerCase().trim();
+            // Validate characters
+            if (!/^[a-z0-9_]*$/.test(username)) {
+                availabilityMsg.className = 'text-xs font-medium text-red-500';
+                availabilityMsg.innerText = 'أحرف إنجليزية، أرقام، و _ فقط';
+                return;
+            }
+
             if (username.length < 3) {
                 availabilityMsg.innerText = '';
                 return;
             }
 
-            // Skip check if it's the current username
             if (username === (userData.username || '').toLowerCase()) {
-                availabilityMsg.className = 'mt-1 text-xs text-green-600';
-                availabilityMsg.innerHTML = '<i class="fas fa-check ml-1"></i> هذا اسمك الحالي';
+                availabilityMsg.className = 'text-xs font-medium text-green-600';
+                availabilityMsg.innerText = 'هذا هو اسمك الحالي';
                 return;
             }
 
+            // Debounce DB check could be good here, but for now direct check:
             try {
                 const q = query(collection(db, "users"), where("username", "==", username));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    availabilityMsg.className = 'mt-1 text-xs text-green-600';
-                    availabilityMsg.innerHTML = '<i class="fas fa-check ml-1"></i> الاسم متاح';
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    availabilityMsg.className = 'text-xs font-medium text-green-600';
+                    availabilityMsg.innerText = 'الاسم متاح ✓';
                 } else {
-                    availabilityMsg.className = 'mt-1 text-xs text-red-600';
-                    availabilityMsg.innerHTML = '<i class="fas fa-times ml-1"></i> الاسم محجوز بالفعل';
+                    availabilityMsg.className = 'text-xs font-medium text-red-500';
+                    availabilityMsg.innerText = 'الاسم مستخدم بالفعل ✗';
                 }
-            } catch (error) {
-                console.error(error);
+            } catch (e) {
+                console.error(e);
             }
         });
 
+
+        // Save Form
+        const editForm = document.getElementById('edit-profile-form');
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newDisplayName = document.getElementById('edit-display-name').value;
+            const btn = document.getElementById('save-profile-btn');
+            const originalBtnText = btn.innerHTML;
+
+            const newName = document.getElementById('edit-display-name').value.trim();
             const newUsername = document.getElementById('edit-username').value.toLowerCase().trim();
             const newPhone = document.getElementById('edit-phone').value.trim();
-            const newPhotoURL = document.getElementById('edit-photo-url').value || `https://ui-avatars.com/api/?name=${encodeURIComponent(newDisplayName)}&background=0ea5e9&color=fff`;
-            const saveBtn = document.getElementById('save-profile-btn');
+            const newAcademic = document.getElementById('edit-academic-year').value.trim();
+            const newBio = document.getElementById('edit-bio').value.trim();
+            const newPhoto = document.getElementById('edit-photo-url').value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=0ea5e9&color=fff`;
 
-            // Check if username is taken (if changed)
+            // Basic Validation
+            if (newUsername.length < 3) return alert('الاسم الرمزي قصير جداً');
+
+            // Unique Check if changed
             if (newUsername !== (userData.username || '').toLowerCase()) {
                 const q = query(collection(db, "users"), where("username", "==", newUsername));
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) {
-                    alert('الاسم الرمزي محجوز بالفعل. اختر اسماً آخر.');
-                    return;
+                if (!(await getDocs(q)).empty) {
+                    return alert('عذراً، الاسم الرمزي محجوز.');
                 }
             }
 
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري الحفظ...';
-            saveBtn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
 
             try {
-                // Update Firebase Auth profile
-                await updateProfile(user, {
-                    displayName: newDisplayName,
-                    photoURL: newPhotoURL
-                });
+                // Update Auth
+                await updateProfile(user, { displayName: newName, photoURL: newPhoto });
 
                 // Update Firestore
                 await updateDoc(doc(db, "users", user.uid), {
-                    displayName: newDisplayName,
+                    displayName: newName,
                     username: newUsername,
-                    phoneNumber: newPhone || null,
-                    photoURL: newPhotoURL
+                    phoneNumber: newPhone,
+                    academicYear: newAcademic,
+                    bio: newBio,
+                    photoURL: newPhoto,
+                    // If these don't exist, we don't want to wipe them, so we only update specific fields
+                    // But if it's a new user doc creation (unlikely here but possible), we rely on merge behavior of some libs, 
+                    // but updateDoc fails if doc doesn't exist. We checked existence at start.
                 });
 
-                // Update UI
-                document.getElementById('profile-display-name').innerText = newDisplayName;
-                document.getElementById('profile-username').innerText = '@' + newUsername;
-                document.getElementById('profile-phone').innerText = newPhone || 'غير محدد';
-                document.getElementById('profile-avatar').src = newPhotoURL;
+                // Reflect Changes Locally without reload
+                updateElementText('profile-display-name', newName);
+                updateElementText('profile-username', newUsername);
+                updateElementText('profile-phone', newPhone || 'غير محدد');
 
-                editModal.classList.add('hidden');
-                alert('تم تحديث الملف الشخصي بنجاح!');
-            } catch (error) {
-                console.error(error);
-                alert('فشل التحديث: ' + error.message);
+                if (newAcademic) {
+                    updateElementText('profile-academic-year', newAcademic);
+                    document.getElementById('profile-academic-wrapper').classList.remove('hidden');
+                    document.getElementById('profile-academic-wrapper').classList.add('flex', 'items-center');
+                } else {
+                    document.getElementById('profile-academic-wrapper').classList.add('hidden');
+                }
+
+                document.getElementById('profile-avatar').src = newPhoto;
+
+                // Update cached data object for next edit
+                userData.displayName = newName;
+                userData.username = newUsername;
+                userData.phoneNumber = newPhone;
+                userData.academicYear = newAcademic;
+                userData.bio = newBio;
+                userData.photoURL = newPhoto;
+
+                closeModals();
+                // Optional: show a nice toast instead of alert
+                alert('تم حفظ التغييرات بنجاح');
+            } catch (err) {
+                console.error(err);
+                alert('حدث خطأ أثناء الحفظ: ' + err.message);
+            } finally {
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
             }
-
-            saveBtn.innerHTML = '<i class="fas fa-save ml-1"></i> حفظ التغييرات';
-            saveBtn.disabled = false;
         });
 
-        // Change Avatar Modal
-        const avatarModal = document.getElementById('avatar-modal');
+        // Quick Avatar Change Button (Just triggers edit modal focus on photo)
         const changeAvatarBtn = document.getElementById('change-avatar-btn');
-        const closeAvatarModalBtn = document.getElementById('close-avatar-modal-btn');
-        const cancelAvatarBtn = document.getElementById('cancel-avatar-btn');
-        const saveAvatarBtn = document.getElementById('save-avatar-btn');
-
         changeAvatarBtn.addEventListener('click', () => {
-            document.getElementById('new-avatar-url').value = '';
-            avatarModal.classList.remove('hidden');
-        });
-
-        closeAvatarModalBtn.addEventListener('click', () => avatarModal.classList.add('hidden'));
-        cancelAvatarBtn.addEventListener('click', () => avatarModal.classList.add('hidden'));
-
-        saveAvatarBtn.addEventListener('click', async () => {
-            const newAvatarURL = document.getElementById('new-avatar-url').value;
-            if (!newAvatarURL) {
-                alert('الرجاء إدخال رابط الصورة');
-                return;
-            }
-
-            saveAvatarBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري الحفظ...';
-            saveAvatarBtn.disabled = true;
-
-            try {
-                await updateProfile(user, { photoURL: newAvatarURL });
-                await updateDoc(doc(db, "users", user.uid), { photoURL: newAvatarURL });
-
-                document.getElementById('profile-avatar').src = newAvatarURL;
-                avatarModal.classList.add('hidden');
-                alert('تم تحديث الصورة بنجاح!');
-            } catch (error) {
-                console.error(error);
-                alert('فشل التحديث: ' + error.message);
-            }
-
-            saveAvatarBtn.innerHTML = '<i class="fas fa-check ml-1"></i> حفظ';
-            saveAvatarBtn.disabled = false;
-        });
-
-        // Logout
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-                await logout();
-                window.location.hash = 'login';
-            }
+            editBtn.click();
+            setTimeout(() => document.getElementById('edit-photo-url').focus(), 100);
         });
 
     } catch (error) {
