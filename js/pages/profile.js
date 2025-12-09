@@ -16,9 +16,23 @@ export function renderProfile() {
                 </div>
             </div>
 
+            <!-- Profile Completion Widget -->
+            <div class="bg-white dark:bg-dark-card rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hidden" id="completion-widget">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-gray-900 dark:text-white text-sm">
+                        <i class="fas fa-tasks text-brand-500 ml-2"></i>اكمال الملف الشخصي
+                    </h3>
+                    <span class="text-brand-600 font-bold text-sm" id="completion-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                    <div id="completion-bar" class="bg-gradient-to-r from-brand-500 to-brand-400 h-2.5 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2" id="completion-message">أكمل بياناتك لتحصل على وسام "الملف الذهبي"!</p>
+            </div>
+
             <!-- Profile Card -->
             <div class="bg-white dark:bg-dark-card rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden relative">
-                <!-- Cover & Avatar -->
+                <!-- ... existing cover ... -->
                 <div class="relative h-48 bg-gradient-to-r from-brand-500 via-blue-500 to-indigo-600">
                     <div class="absolute inset-0 bg-pattern opacity-10"></div>
                     <div class="absolute -bottom-16 right-8">
@@ -47,6 +61,11 @@ export function renderProfile() {
                             </div>
                             <p id="profile-email" class="text-gray-500 dark:text-gray-400 text-sm mt-2 opacity-80">...</p>
                             <p id="profile-bio" class="text-gray-600 dark:text-gray-300 text-sm mt-3 max-w-2xl leading-relaxed hidden">...</p>
+                            
+                            <!-- Social Links Display -->
+                            <div class="flex items-center gap-3 mt-4" id="social-links-display">
+                                <!-- Icons injected via JS -->
+                            </div>
                         </div>
                         <button id="edit-profile-btn" class="group px-5 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0">
                             <span class="flex items-center gap-2">
@@ -326,13 +345,43 @@ export function renderProfile() {
                                 </div>
                             </div>
 
+                            <!-- Contact Info -->
                             <div class="col-span-1 sm:col-span-2">
                                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رقم الهاتف</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                                         <i class="fas fa-phone-alt"></i>
                                     </div>
-                                    <input type="tel" id="edit-phone" class="block w-full pr-10 p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all" placeholder="05XXXXXXXX" dir="ltr" style="text-align: right;">
+                                    <input type="tel" id="edit-phone" class="block w-full pr-10 p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all font-mono" placeholder="05XXXXXXXX" dir="ltr" style="text-align: right;">
+                                </div>
+                            </div>
+
+                            <!-- Social Links -->
+                            <div class="col-span-1 sm:col-span-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-3">
+                                    <i class="fas fa-share-alt ml-1 text-brand-500"></i> روابط التواصل الاجتماعي
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fab fa-facebook"></i></div>
+                                        <input type="url" id="edit-social-facebook" class="block w-full pr-10 p-2.5 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs" placeholder="Facebook URL">
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fab fa-twitter"></i></div>
+                                        <input type="url" id="edit-social-twitter" class="block w-full pr-10 p-2.5 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs" placeholder="Twitter/X URL">
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fab fa-instagram"></i></div>
+                                        <input type="url" id="edit-social-instagram" class="block w-full pr-10 p-2.5 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs" placeholder="Instagram URL">
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fab fa-linkedin"></i></div>
+                                        <input type="url" id="edit-social-linkedin" class="block w-full pr-10 p-2.5 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs" placeholder="LinkedIn URL">
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fab fa-github"></i></div>
+                                        <input type="url" id="edit-social-github" class="block w-full pr-10 p-2.5 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs" placeholder="GitHub URL">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -393,6 +442,60 @@ export async function initProfile() {
         } else {
             document.getElementById('profile-bio').classList.add('hidden');
         }
+
+        // Social Links Logic
+        const socialLinks = userData.socialLinks || {};
+        const socialContainer = document.getElementById('social-links-display');
+        socialContainer.innerHTML = '';
+
+        const platforms = [
+            { id: 'facebook', icon: 'fab fa-facebook', color: 'text-blue-600' },
+            { id: 'twitter', icon: 'fab fa-twitter', color: 'text-sky-500' },
+            { id: 'instagram', icon: 'fab fa-instagram', color: 'text-pink-600' },
+            { id: 'linkedin', icon: 'fab fa-linkedin', color: 'text-blue-700' },
+            { id: 'github', icon: 'fab fa-github', color: 'text-gray-900 dark:text-gray-100' }
+        ];
+
+        let hasSocial = false;
+        platforms.forEach(p => {
+            if (socialLinks[p.id]) {
+                const link = document.createElement('a');
+                link.href = socialLinks[p.id];
+                link.target = "_blank";
+                link.className = `p-2 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-white dark:hover:bg-gray-700 shadow-sm transition-transform hover:scale-110 ${p.color}`;
+                link.innerHTML = `<i class="${p.icon} text-xl"></i>`;
+                socialContainer.appendChild(link);
+                hasSocial = true;
+            }
+        });
+        if (!hasSocial) socialContainer.classList.add('hidden');
+        else socialContainer.classList.remove('hidden');
+
+
+        // --- Profile Completion Logic ---
+        const checkField = (val) => val && val.length > 0 && val !== '...';
+        const fields = [
+            { val: userData.displayName, weight: 10 },
+            { val: userData.username, weight: 10 },
+            { val: userData.photoURL && !userData.photoURL.includes('ui-avatars.com'), weight: 15 },
+            { val: userData.bio, weight: 20 },
+            { val: userData.academicYear, weight: 15 },
+            { val: userData.phoneNumber, weight: 15 },
+            { val: Object.keys(socialLinks).length > 0, weight: 15 }
+        ];
+
+        const completion = fields.reduce((acc, curr) => curr.val ? acc + curr.weight : acc, 0);
+        const finalCompletion = Math.min(100, completion);
+
+        document.getElementById('completion-percent').innerText = `${finalCompletion}%`;
+        document.getElementById('completion-bar').style.width = `${finalCompletion}%`;
+        document.getElementById('completion-widget').classList.remove('hidden');
+
+        if (finalCompletion === 100) {
+            document.getElementById('completion-message').innerText = "رائع! ملفك الشخصي مكتمل تماماً 🎉";
+            document.getElementById('completion-message').className = "text-xs text-green-600 font-bold mt-2";
+        }
+
 
         // Academic Year Logic
         if (userData.academicYear) {
@@ -466,7 +569,16 @@ export async function initProfile() {
             document.getElementById('edit-phone').value = userData.phoneNumber || '';
             document.getElementById('edit-academic-year').value = userData.academicYear || '';
             document.getElementById('edit-photo-url').value = userData.photoURL || '';
+            document.getElementById('edit-bio').value = userData.bio || '';
             document.getElementById('form-avatar-preview').src = userData.photoURL || avatar;
+
+            // Populate Social Inputs
+            const links = userData.socialLinks || {};
+            document.getElementById('edit-social-facebook').value = links.facebook || '';
+            document.getElementById('edit-social-twitter').value = links.twitter || '';
+            document.getElementById('edit-social-instagram').value = links.instagram || '';
+            document.getElementById('edit-social-linkedin').value = links.linkedin || '';
+            document.getElementById('edit-social-github').value = links.github || '';
 
             editModal.classList.remove('hidden');
             editModal.classList.add('flex');
@@ -542,14 +654,26 @@ export async function initProfile() {
             const newBio = document.getElementById('edit-bio').value.trim();
             const newPhoto = document.getElementById('edit-photo-url').value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=0ea5e9&color=fff`;
 
+            // Collect Social Links
+            const newSocialLinks = {
+                facebook: document.getElementById('edit-social-facebook').value.trim(),
+                twitter: document.getElementById('edit-social-twitter').value.trim(),
+                instagram: document.getElementById('edit-social-instagram').value.trim(),
+                linkedin: document.getElementById('edit-social-linkedin').value.trim(),
+                github: document.getElementById('edit-social-github').value.trim()
+            };
+
+            // Remove empty keys
+            Object.keys(newSocialLinks).forEach(k => !newSocialLinks[k] && delete newSocialLinks[k]);
+
             // Basic Validation
-            if (newUsername.length < 3) return alert('الاسم الرمزي قصير جداً');
+            if (newUsername.length < 3) return window.showToast('الاسم الرمزي قصير جداً', 'error');
 
             // Unique Check if changed
             if (newUsername !== (userData.username || '').toLowerCase()) {
                 const q = query(collection(db, "users"), where("username", "==", newUsername));
                 if (!(await getDocs(q)).empty) {
-                    return alert('عذراً، الاسم الرمزي محجوز.');
+                    return window.showToast('عذراً، الاسم الرمزي محجوز.', 'error');
                 }
             }
 
@@ -568,6 +692,7 @@ export async function initProfile() {
                     academicYear: newAcademic,
                     bio: newBio,
                     photoURL: newPhoto,
+                    socialLinks: newSocialLinks
                     // If these don't exist, we don't want to wipe them, so we only update specific fields
                     // But if it's a new user doc creation (unlikely here but possible), we rely on merge behavior of some libs, 
                     // but updateDoc fails if doc doesn't exist. We checked existence at start.
@@ -577,6 +702,13 @@ export async function initProfile() {
                 updateElementText('profile-display-name', newName);
                 updateElementText('profile-username', newUsername);
                 updateElementText('profile-phone', newPhone || 'غير محدد');
+
+                if (newBio) {
+                    updateElementText('profile-bio', newBio);
+                    document.getElementById('profile-bio').classList.remove('hidden');
+                } else {
+                    document.getElementById('profile-bio').classList.add('hidden');
+                }
 
                 if (newAcademic) {
                     updateElementText('profile-academic-year', newAcademic);
@@ -588,25 +720,73 @@ export async function initProfile() {
 
                 document.getElementById('profile-avatar').src = newPhoto;
 
-                // Update cached data object for next edit
+                // Update cached data object for next edit & re-render checks
                 userData.displayName = newName;
                 userData.username = newUsername;
                 userData.phoneNumber = newPhone;
                 userData.academicYear = newAcademic;
                 userData.bio = newBio;
                 userData.photoURL = newPhoto;
+                userData.socialLinks = newSocialLinks;
+
+                // Re-run initProfile partial logic? Easier to just reload or manually update complex widgets.
+                // We should re-render social links manually here to avoid full reload
+                // (Copy-paste logic from above or extract function? Let's inline for safety)
+
+                const socialContainer = document.getElementById('social-links-display');
+                socialContainer.innerHTML = '';
+                let hasSocial = false;
+                platforms.forEach(p => {
+                    if (newSocialLinks[p.id]) {
+                        const link = document.createElement('a');
+                        link.href = newSocialLinks[p.id];
+                        link.target = "_blank";
+                        link.className = `p-2 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-white dark:hover:bg-gray-700 shadow-sm transition-transform hover:scale-110 ${p.color}`;
+                        link.innerHTML = `<i class="${p.icon} text-xl"></i>`;
+                        socialContainer.appendChild(link);
+                        hasSocial = true;
+                    }
+                });
+                if (!hasSocial) socialContainer.classList.add('hidden');
+                else socialContainer.classList.remove('hidden');
+
+                // Recalculate Completion Widget
+                // ... same completion logic ...
+                // Can't easily invoke "checkField" if strict scope, but we defined it inside initProfile scope.
+                // We will just re-calc here.
+                const completionFields = [
+                    { val: newName, weight: 10 },
+                    { val: newUsername, weight: 10 },
+                    { val: newPhoto && !newPhoto.includes('ui-avatars.com'), weight: 15 },
+                    { val: newBio, weight: 20 },
+                    { val: newAcademic, weight: 15 },
+                    { val: newPhone, weight: 15 },
+                    { val: Object.keys(newSocialLinks).length > 0, weight: 15 }
+                ];
+                const completion = completionFields.reduce((acc, curr) => (curr.val && curr.val.length > 0) ? acc + curr.weight : acc, 0);
+                const finalCompletion = Math.min(100, completion);
+                document.getElementById('completion-percent').innerText = `${finalCompletion}%`;
+                document.getElementById('completion-bar').style.width = `${finalCompletion}%`;
+                if (finalCompletion === 100) {
+                    document.getElementById('completion-message').innerText = "رائع! ملفك الشخصي مكتمل تماماً 🎉";
+                    document.getElementById('completion-message').className = "text-xs text-green-600 font-bold mt-2";
+                } else {
+                    document.getElementById('completion-message').innerText = "أكمل ملفك الشخصي لتحصل على أقصى استفادة!";
+                    document.getElementById('completion-message').className = "text-xs text-blue-600 mt-2";
+                }
+
 
                 closeModals();
-                // Optional: show a nice toast instead of alert
-                alert('تم حفظ التغييرات بنجاح');
+                window.showToast('تم حفظ التغييرات بنجاح', 'success');
             } catch (err) {
                 console.error(err);
-                alert('حدث خطأ أثناء الحفظ: ' + err.message);
+                window.showToast('حدث خطأ أثناء الحفظ: ' + err.message, 'error');
             } finally {
                 btn.innerHTML = originalBtnText;
                 btn.disabled = false;
             }
         });
+
 
         // Quick Avatar Change Button (Just triggers edit modal focus on photo)
         const changeAvatarBtn = document.getElementById('change-avatar-btn');

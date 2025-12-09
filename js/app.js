@@ -4,6 +4,39 @@ import { initAuthObserver } from './auth.js';
 document.addEventListener('DOMContentLoaded', () => {
     console.log("App Loaded");
 
+    // Toast System
+    if (!document.getElementById('toast-container')) {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    window.showToast = (message, type = 'info') => {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+
+        toast.innerHTML = `
+            <i class="fas fa-${icon} text-lg ${type === 'success' ? 'text-green-500' : type === 'error' ? 'text-red-500' : 'text-blue-500'}"></i>
+            <span class="font-medium text-sm">${message}</span>
+        `;
+
+        container.appendChild(toast);
+
+        // Trigger animation
+        requestAnimationFrame(() => toast.classList.add('show'));
+
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    };
+
     // Sidebar Logic
     const menuBtn = document.getElementById('menu-btn');
     const sidebar = document.getElementById('sidebar');
