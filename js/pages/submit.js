@@ -1,5 +1,5 @@
 import { uploadImageToImgBB } from '../api/imgbb.js';
-import { db } from '../firebase-config.js';
+import { db, auth } from '../firebase-config.js';
 // We would import collection/addDoc from firebaseSDK here but we need to ensure firebase-config exports them or we import from SDK directly.
 // For now, let's assume valid imports or handle logic in firebase-config if we want to centralize.
 // Since firebase-config exports 'db' (initialized instance), we need addDoc from SDK.
@@ -78,6 +78,15 @@ export function initSubmit() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Check Authentication First
+        const user = auth.currentUser;
+        if (!user) {
+            alert("يرجى تسجيل الدخول أولاً لإرسال الإثبات");
+            // Optional: Redirect to login page
+            // window.location.hash = '#login';
+            return;
+        }
+
         const file = fileInput.files[0];
         const link = document.getElementById('post-link').value;
 
@@ -95,10 +104,10 @@ export function initSubmit() {
             console.log("Image uploaded:", imageUrl);
 
             // 2. Save to Firestore
-            // TODO: Get actual user ID when Auth is ready. Using 'test-user' for now.
             const submissionData = {
-                userId: "test-user-id", // auth.currentUser ? auth.currentUser.uid : 'anon',
-                username: "Test User", // auth.currentUser ? auth.currentUser.displayName : 'Anonymous',
+                userId: user.uid,
+                username: user.displayName || user.email || 'Anonymous',
+                email: user.email,
                 imageUrl: imageUrl,
                 postLink: link,
                 status: "pending", // pending, approved, rejected
@@ -116,7 +125,12 @@ export function initSubmit() {
 
         } catch (error) {
             console.error("Submission error:", error);
-            alert("حدث خطأ أثناء الإرسال: " + error.message);
+            // Translate common errors
+            let msg = error.message;
+            if (msg.includes("Missing or insufficient permissions")) {
+                msg = "ليس لديك صلاحية لإرسال الإثبات. تأكد من أنك مسجل الدخول.";
+            }
+            alert("حدث خطأ أثناء الإرسال: " + msg);
         } finally {
             setLoading(false);
         }
