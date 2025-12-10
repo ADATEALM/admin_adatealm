@@ -190,7 +190,21 @@ export function renderMembers() {
                              </div>
                         </div>
 
-                        <div class="space-y-4 text-right">
+                            <div class="space-y-4 text-right">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">المعلومات الشخصية</h4>
+
+                            <!-- Academic Info -->
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                                    <p class="text-[10px] text-indigo-400 mb-1">السنة الدراسية</p>
+                                    <p id="modal-academic" class="font-bold text-indigo-700 dark:text-indigo-300 text-sm truncate">...</p>
+                                </div>
+                                <div class="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                                    <p class="text-[10px] text-purple-400 mb-1">التخصص</p>
+                                    <p id="modal-specialty" class="font-bold text-purple-700 dark:text-purple-300 text-sm truncate">...</p>
+                                </div>
+                            </div>
+                            
                             <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">معلومات الاتصال</h4>
                             
                             <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">
@@ -492,6 +506,9 @@ export async function initMembers() {
 
         document.getElementById('modal-email').innerText = member.email;
         document.getElementById('modal-phone').innerText = member.phoneNumber || 'غير متوفر';
+
+        document.getElementById('modal-academic').innerText = member.academicYear || 'غير محدد';
+        document.getElementById('modal-specialty').innerText = member.specialty || 'غير محدد';
 
         // Badge
         const badgeContainer = document.getElementById('modal-badge-container');

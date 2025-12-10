@@ -119,6 +119,9 @@ export async function initHome() {
         const userData = userDoc.data();
         console.log("User data loaded:", userData); // Debug log
 
+        // Check Symbolic Name
+        checkSymbolicName(userData, user.uid);
+
         // Update welcome name
         const welcomeName = document.getElementById('welcome-name');
         if (welcomeName) {
@@ -198,5 +201,109 @@ export async function initHome() {
 
     } catch (error) {
         console.error("Error loading user data:", error);
+    }
+}
+
+// Helper to check and enforce symbolic name
+async function checkSymbolicName(userData, uid) {
+    if (!userData.username || userData.username.trim() === '') {
+        // Show blocking modal
+        const modalId = 'symbolic-name-modal';
+        if (document.getElementById(modalId)) return; // Already shown
+
+        const modalHtml = `
+            <div id="${modalId}" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                <div class="bg-white dark:bg-dark-card w-full max-w-md rounded-3xl p-8 shadow-2xl transform scale-100 border border-brand-100 dark:border-brand-900/30 text-center">
+                    <div class="w-16 h-16 mx-auto bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 text-2xl mb-6 animate-bounce-slow">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">مطلوب: الاسم الرمزي</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm leading-relaxed">
+                        لإكمال إعداد حسابك، يرجى اختيار اسم رمزي (Hashtag) فريد.
+                        <br>سيتم استخدامه في المنشن والبحث بدلاً من اسمك الحقيقي.
+                    </p>
+                    
+                    <div class="space-y-4 text-right">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">الاسم الرمزي المقترح</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 font-bold">#</span>
+                                <input type="text" id="force-username-input" 
+                                    class="block w-full pr-8 pl-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl focus:ring-brand-500 focus:border-brand-500 transition-all font-mono text-left dir-ltr" 
+                                    placeholder="falcon_01" style="direction: ltr; text-align: left;">
+                            </div>
+                            <p id="force-username-error" class="text-xs text-red-500 mt-2 font-medium hidden">هذا الاسم مستخدم بالفعل</p>
+                        </div>
+                        
+                        <button id="save-symbolic-name-btn" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-brand-500/30">
+                            بطاقة تعريف جديدة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Logic
+        const btn = document.getElementById('save-symbolic-name-btn');
+        const input = document.getElementById('force-username-input');
+        const errorMsg = document.getElementById('force-username-error');
+
+        btn.addEventListener('click', async () => {
+            const val = input.value.toLowerCase().trim();
+
+            // Validation
+            if (val.length < 3) {
+                errorMsg.innerText = "الاسم قصير جداً (3 أحرف على الأقل)";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            if (!/^[a-z0-9_]+$/.test(val)) {
+                errorMsg.innerText = "أحرف إنجليزية وأرقام و _ فقط";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+
+            try {
+                // Check uniqueness
+                const { collection, query, where, getDocs, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+
+                const q = query(collection(db, "users"), where("username", "==", val));
+                const snap = await getDocs(q);
+
+                if (!snap.empty) {
+                    errorMsg.innerText = "عذراً، هذا الاسم مستخدم مسبقاً";
+                    errorMsg.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerText = 'بطاقة تعريف جديدة';
+                    return;
+                }
+
+                // Save
+                await updateDoc(doc(db, "users", uid), {
+                    username: val
+                });
+
+                // Success & Close
+                document.getElementById(modalId).remove();
+
+                // Show success toast (optional, but good UX)
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg z-50 animate-fade-in font-bold flex items-center gap-2';
+                toast.innerHTML = '<i class="fas fa-check-circle"></i> تم حفظ الاسم الرمزي بنجاح';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = "حدث خطأ غير متوقع. حاول لاحقاً";
+                errorMsg.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerText = 'بطاقة تعريف جديدة';
+            }
+        });
     }
 }

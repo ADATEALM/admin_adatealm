@@ -57,6 +57,8 @@ export function renderProfile() {
                                 </span>
                                 <span id="profile-academic-wrapper" class="hidden px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium border border-indigo-100 dark:border-indigo-800/50">
                                     <i class="fas fa-graduation-cap ml-1.5 opacity-70"></i><span id="profile-academic-year"></span>
+                                    <span id="profile-specialty-separator" class="mx-1 hidden">|</span>
+                                    <span id="profile-specialty"></span>
                                 </span>
                             </div>
                             <p id="profile-email" class="text-gray-500 dark:text-gray-400 text-sm mt-2 opacity-80">...</p>
@@ -352,6 +354,18 @@ export function renderProfile() {
                                         <option value="خريج">
                                     </datalist>
                                 </div>
+                                </div>
+                            </div>
+
+                            <!-- Specialty -->
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">التخصص الدراسي</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-book-reader"></i>
+                                    </div>
+                                    <input type="text" id="edit-specialty" class="block w-full pr-10 p-3 rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all" placeholder="مثال: طب، هندسة، شريعة...">
+                                </div>
                             </div>
 
                             <!-- Contact Info -->
@@ -488,7 +502,8 @@ export async function initProfile() {
             { val: userData.username, weight: 10 },
             { val: userData.photoURL && !userData.photoURL.includes('ui-avatars.com'), weight: 15 },
             { val: userData.bio, weight: 20 },
-            { val: userData.academicYear, weight: 15 },
+            { val: userData.academicYear, weight: 10 },
+            { val: userData.specialty, weight: 5 },
             { val: userData.phoneNumber, weight: 15 },
             { val: Object.keys(socialLinks).length > 0, weight: 15 }
         ];
@@ -507,10 +522,26 @@ export async function initProfile() {
 
 
         // Academic Year Logic
-        if (userData.academicYear) {
-            updateElementText('profile-academic-year', userData.academicYear);
+        // Academic Year & Specialty Logic
+        if (userData.academicYear || userData.specialty) {
             document.getElementById('profile-academic-wrapper').classList.remove('hidden');
             document.getElementById('profile-academic-wrapper').classList.add('flex', 'items-center');
+
+            if (userData.academicYear) {
+                updateElementText('profile-academic-year', userData.academicYear);
+            }
+
+            if (userData.specialty) {
+                updateElementText('profile-specialty', userData.specialty);
+                document.getElementById('profile-specialty').classList.remove('hidden');
+                if (userData.academicYear) {
+                    document.getElementById('profile-specialty-separator').classList.remove('hidden'); // Show separator if both exist
+                }
+            } else {
+                document.getElementById('profile-specialty').classList.add('hidden');
+                document.getElementById('profile-specialty-separator').classList.add('hidden');
+            }
+
         } else {
             document.getElementById('profile-academic-wrapper').classList.add('hidden');
         }
@@ -586,6 +617,7 @@ export async function initProfile() {
             document.getElementById('edit-username').value = userData.username || '';
             document.getElementById('edit-phone').value = userData.phoneNumber || '';
             document.getElementById('edit-academic-year').value = userData.academicYear || '';
+            document.getElementById('edit-specialty').value = userData.specialty || '';
             document.getElementById('edit-photo-url').value = userData.photoURL || '';
             document.getElementById('edit-bio').value = userData.bio || '';
             document.getElementById('form-avatar-preview').src = userData.photoURL || avatar;
@@ -669,6 +701,7 @@ export async function initProfile() {
             const newUsername = document.getElementById('edit-username').value.toLowerCase().trim();
             const newPhone = document.getElementById('edit-phone').value.trim();
             const newAcademic = document.getElementById('edit-academic-year').value.trim();
+            const newSpecialty = document.getElementById('edit-specialty').value.trim();
             const newBio = document.getElementById('edit-bio').value.trim();
             const newPhoto = document.getElementById('edit-photo-url').value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=0ea5e9&color=fff`;
 
@@ -708,6 +741,7 @@ export async function initProfile() {
                     username: newUsername,
                     phoneNumber: newPhone,
                     academicYear: newAcademic,
+                    specialty: newSpecialty,
                     bio: newBio,
                     photoURL: newPhoto,
                     socialLinks: newSocialLinks
@@ -728,10 +762,24 @@ export async function initProfile() {
                     document.getElementById('profile-bio').classList.add('hidden');
                 }
 
-                if (newAcademic) {
-                    updateElementText('profile-academic-year', newAcademic);
+                if (newAcademic || newSpecialty) {
                     document.getElementById('profile-academic-wrapper').classList.remove('hidden');
                     document.getElementById('profile-academic-wrapper').classList.add('flex', 'items-center');
+
+                    if (newAcademic) updateElementText('profile-academic-year', newAcademic);
+                    if (newSpecialty) {
+                        updateElementText('profile-specialty', newSpecialty);
+                        document.getElementById('profile-specialty').classList.remove('hidden');
+                    } else {
+                        document.getElementById('profile-specialty').classList.add('hidden');
+                    }
+
+                    if (newAcademic && newSpecialty) {
+                        document.getElementById('profile-specialty-separator').classList.remove('hidden');
+                    } else {
+                        document.getElementById('profile-specialty-separator').classList.add('hidden');
+                    }
+
                 } else {
                     document.getElementById('profile-academic-wrapper').classList.add('hidden');
                 }
@@ -743,6 +791,7 @@ export async function initProfile() {
                 userData.username = newUsername;
                 userData.phoneNumber = newPhone;
                 userData.academicYear = newAcademic;
+                userData.specialty = newSpecialty;
                 userData.bio = newBio;
                 userData.photoURL = newPhoto;
                 userData.socialLinks = newSocialLinks;
@@ -777,7 +826,8 @@ export async function initProfile() {
                     { val: newUsername, weight: 10 },
                     { val: newPhoto && !newPhoto.includes('ui-avatars.com'), weight: 15 },
                     { val: newBio, weight: 20 },
-                    { val: newAcademic, weight: 15 },
+                    { val: newAcademic, weight: 10 },
+                    { val: newSpecialty, weight: 5 },
                     { val: newPhone, weight: 15 },
                     { val: Object.keys(newSocialLinks).length > 0, weight: 15 }
                 ];

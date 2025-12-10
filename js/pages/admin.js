@@ -25,6 +25,15 @@ function isAdmin() {
     return ADMIN_EMAILS.includes(user.email.toLowerCase());
 }
 
+// Protected Emails (Same as Admins for now based on request)
+const PROTECTED_EMAILS = [
+    'adatealm@gmail.com',
+    'nourmt01@gmail.com',
+    'yacinee474474@gmail.com',
+    's22market@gmail.com',
+    'adatshifa@gmail.com'
+];
+
 export function renderAdmin() {
     // Check if user is admin
     if (!isAdmin()) {
@@ -521,10 +530,10 @@ async function loadAllUsers() {
                     <button class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg edit-user-btn" data-id="${doc.id}" data-points="${user.points || 0}" title="تعديل">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="text-orange-500 hover:bg-orange-50 p-2 rounded-lg suspend-user-btn" data-id="${doc.id}" data-status="${user.accountStatus || 'active'}" title="${user.accountStatus === 'suspended' ? 'إلغاء التجميد' : 'تجميد الحساب'}">
+                    <button class="text-orange-500 hover:bg-orange-50 p-2 rounded-lg suspend-user-btn" data-id="${doc.id}" data-email="${user.email}" data-status="${user.accountStatus || 'active'}" title="${user.accountStatus === 'suspended' ? 'إلغاء التجميد' : 'تجميد الحساب'}">
                         <i class="fas ${user.accountStatus === 'suspended' ? 'fa-play' : 'fa-ban'}"></i>
                     </button>
-                    <button class="text-red-500 hover:bg-red-50 p-2 rounded-lg delete-user-btn" data-id="${doc.id}" title="حذف الحساب">
+                    <button class="text-red-500 hover:bg-red-50 p-2 rounded-lg delete-user-btn" data-id="${doc.id}" data-email="${user.email}" title="حذف الحساب">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                     ${user.isAdmin ? '<i class="fas fa-shield-alt text-brand-500 ml-2" title="أدمن"></i>' : ''}
@@ -550,12 +559,12 @@ async function loadAllUsers() {
 
         // Delete User Logic
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteUser(btn.dataset.id));
+            btn.addEventListener('click', () => deleteUser(btn.dataset.id, btn.dataset.email));
         });
 
         // Suspend User Logic
         document.querySelectorAll('.suspend-user-btn').forEach(btn => {
-            btn.addEventListener('click', () => toggleUserSuspension(btn.dataset.id, btn.dataset.status));
+            btn.addEventListener('click', () => toggleUserSuspension(btn.dataset.id, btn.dataset.status, btn.dataset.email));
         });
 
     } catch (error) {
@@ -612,7 +621,12 @@ function setupUserActions() {
     });
 }
 
-async function deleteUser(uid) {
+async function deleteUser(uid, email) {
+    if (email && PROTECTED_EMAILS.includes(email.toLowerCase())) {
+        alert("⛔ عذراً، لا يمكن حذف هذا الحساب لأنه محمي (حساب إداري).");
+        return;
+    }
+
     if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟\n⚠️ سيتم حذف بياناته من قاعدة البيانات، وسيختفي من القوائم.')) return;
 
     try {
@@ -628,7 +642,12 @@ async function deleteUser(uid) {
     }
 }
 
-async function toggleUserSuspension(uid, currentStatus) {
+async function toggleUserSuspension(uid, currentStatus, email) {
+    if (email && PROTECTED_EMAILS.includes(email.toLowerCase())) {
+        alert("⛔ عذراً، لا يمكن تجميد هذا الحساب لأنه محمي (حساب إداري).");
+        return;
+    }
+
     const isSuspended = currentStatus === 'suspended';
     const newStatus = isSuspended ? 'active' : 'suspended';
     const actionName = isSuspended ? 'تفعيل' : 'تجميد';
