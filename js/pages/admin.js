@@ -1,12 +1,13 @@
 import { db, auth } from '../firebase-config.js';
-import { collection, query, where, getDocs, updateDoc, doc, increment, setDoc, getDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, query, where, getDocs, updateDoc, deleteDoc, doc, increment, setDoc, getDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getDatabase, ref as dbRef, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Global Admin Settings
 let adminSettings = {
     weeklyTarget: 20,
     rewardPoints: 10,
-    telegramGroupPoints: 500
+    telegramGroupPoints: 500,
+    colleagueViewPoints: 100 // Default value
 };
 
 // قائمة الإيميلات المصرح لها بالوصول للوحة التحكم
@@ -248,10 +249,6 @@ export function renderAdmin() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    نقاط فتح مجموعة VIP
-                                </label>
                                 <div class="relative">
                                     <input type="number" id="setting-telegram-points" class="block w-full pl-4 pr-10 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all" value="500" min="0">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
@@ -259,6 +256,18 @@ export function renderAdmin() {
                                     </div>
                                 </div>
                                 <p class="mt-1 text-xs text-gray-500">يظهر زر الانضمام عند الوصول لهذا العدد من النقاط</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    نقاط فتح ملفات الزملاء
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="setting-colleague-points" class="block w-full pl-4 pr-10 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-all" value="100" min="0">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-users-cog"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">النقاط المطلوبة لكي يتمكن المشرف من رؤية تفاصيل زملائه (الإيميل، الروابط، إلخ)</p>
                             </div>
                         </div>
 
@@ -441,11 +450,24 @@ async function handleSubmissionAction(e) {
 
         if (action === 'approve') {
             const userRef = doc(db, "users", uid);
-            await updateDoc(userRef, {
-                points: increment(adminSettings.rewardPoints),
-                "weeklyProgress.count": increment(1),
-                "stats.approvedSubmissions": increment(1)
-            });
+            // Get user doc first to check structure
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                const updates = {
+                    points: increment(adminSettings.rewardPoints),
+                    "stats.approvedSubmissions": increment(1)
+                };
+
+                // Initialize weeklyProgress if not exists
+                if (!userData.weeklyProgress) {
+                    updates.weeklyProgress = { count: 1, target: adminSettings.weeklyTarget, lastUpdated: new Date() };
+                } else {
+                    updates["weeklyProgress.count"] = increment(1);
+                }
+
+                await updateDoc(userRef, updates);
+            }
         } else {
             const userRef = doc(db, "users", uid);
             await updateDoc(userRef, {
@@ -496,8 +518,11 @@ async function loadAllUsers() {
                 <td class="p-4 font-mono font-bold text-brand-600">${user.points || 0}</td>
                 <td class="p-4"><span class="bg-gray-100 dark:bg-gray-700 text-xs px-2 py-1 rounded">${user.rank || 'متدرب'}</span></td>
                 <td class="p-4">
-                    <button class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg edit-user-btn" data-id="${doc.id}" data-points="${user.points || 0}">
+                    <button class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg edit-user-btn" data-id="${doc.id}" data-points="${user.points || 0}" title="تعديل">
                         <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-red-500 hover:bg-red-50 p-2 rounded-lg delete-user-btn" data-id="${doc.id}" title="حذف الحساب">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                     ${user.isAdmin ? '<i class="fas fa-shield-alt text-brand-500 ml-2" title="أدمن"></i>' : ''}
                 </td>
@@ -518,6 +543,11 @@ async function loadAllUsers() {
         // Edit User Logic
         document.querySelectorAll('.edit-user-btn').forEach(btn => {
             btn.addEventListener('click', () => openEditUser(btn.dataset.id, btn.dataset.points));
+        });
+
+        // Delete User Logic
+        document.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteUser(btn.dataset.id));
         });
 
     } catch (error) {
@@ -574,6 +604,25 @@ function setupUserActions() {
     });
 }
 
+async function deleteUser(uid) {
+    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟\n⚠️ سيتم حذف بياناته من قاعدة البيانات، ولكن قد يبقى حسابه في نظام المصادقة معطلاً.')) return;
+
+    try {
+        await deleteDoc(doc(db, "users", uid));
+        // Logic check: deleteDoc is not imported in line 2. It is 'deleteDoc'.
+        // Wait, line 2 imports: collection, query, where, getDocs, updateDoc, doc, increment, setDoc, getDoc, orderBy, limit
+        // I need to add deleteDoc to imports first! 
+        // Or wait, can I allow adding it to import via another replacement chunk? Yes.
+        alert("تم حذف المستخدم بنجاح");
+        loadAllUsers();
+    } catch (error) {
+        // If deleteDoc not imported, this will crash. I must fix imports first.
+        // Actually, I can use the same pattern as before.
+        // Let's assume I fix imports in another chunk.
+        alert("خطأ في الحذف: " + error.message);
+    }
+}
+
 // ==========================================
 // CHAT & SETTINGS MANAGEMENT
 // ==========================================
@@ -585,6 +634,7 @@ async function loadSettings() {
             document.getElementById('setting-target').value = adminSettings.weeklyTarget || 20;
             document.getElementById('setting-points').value = adminSettings.rewardPoints || 10;
             document.getElementById('setting-telegram-points').value = adminSettings.telegramGroupPoints || 500;
+            document.getElementById('setting-colleague-points').value = adminSettings.colleagueViewPoints || 100;
         }
     } catch (e) { console.log("Using default settings"); }
 }
@@ -600,6 +650,7 @@ function setupSettingsActions() {
                 weeklyTarget: parseInt(document.getElementById('setting-target').value),
                 rewardPoints: parseInt(document.getElementById('setting-points').value),
                 telegramGroupPoints: parseInt(document.getElementById('setting-telegram-points').value),
+                colleagueViewPoints: parseInt(document.getElementById('setting-colleague-points').value),
             };
 
             await setDoc(doc(db, "settings", "global"), newSettings, { merge: true });

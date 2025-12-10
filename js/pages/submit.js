@@ -81,9 +81,13 @@ export function initSubmit() {
         // Check Authentication First
         const user = auth.currentUser;
         if (!user) {
-            alert("يرجى تسجيل الدخول أولاً لإرسال الإثبات");
-            // Optional: Redirect to login page
-            // window.location.hash = '#login';
+            Swal.fire({
+                icon: 'warning',
+                title: 'تنبيه',
+                text: 'يرجى تسجيل الدخول أولاً لإرسال الإثبات',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#0ea5e9'
+            });
             return;
         }
 
@@ -91,7 +95,13 @@ export function initSubmit() {
         const link = document.getElementById('post-link').value;
 
         if (!file) {
-            alert("يرجى اختيار صورة الإثبات");
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ',
+                text: 'يرجى اختيار صورة الإثبات',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#0ea5e9'
+            });
             return;
         }
 
@@ -118,7 +128,16 @@ export function initSubmit() {
             await addDoc(collection(db, "proof_submissions"), submissionData);
 
             // Success
-            alert("تم إرسال الإثبات بنجاح!");
+            await Swal.fire({
+                icon: 'success',
+                title: 'تم الإرسال بنجاح!',
+                text: 'تم استلام إثباتك وسيتم مراجعته قريباً من قبل المسؤولين.',
+                confirmButtonText: 'رائع',
+                confirmButtonColor: '#0ea5e9',
+                timer: 3000,
+                timerProgressBar: true
+            });
+
             form.reset();
             previewImage.classList.add('hidden');
             dropZone.querySelector('div').classList.remove('hidden');
@@ -130,7 +149,14 @@ export function initSubmit() {
             if (msg.includes("Missing or insufficient permissions")) {
                 msg = "ليس لديك صلاحية لإرسال الإثبات. تأكد من أنك مسجل الدخول.";
             }
-            alert("حدث خطأ أثناء الإرسال: " + msg);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'فشل الإرسال',
+                text: msg,
+                confirmButtonText: 'حاول مرة أخرى',
+                confirmButtonColor: '#ef4444'
+            });
         } finally {
             setLoading(false);
         }
