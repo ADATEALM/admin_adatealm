@@ -286,7 +286,16 @@ export function renderProfile() {
                             <img id="form-avatar-preview" src="" class="w-16 h-16 rounded-full object-cover ring-2 ring-white dark:ring-gray-700">
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">صورة الملف الشخصي</label>
-                                <input type="url" id="edit-photo-url" class="block w-full text-sm p-2 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-shadow" placeholder="https://example.com/photo.jpg">
+                                <div class="flex gap-2">
+                                    <input type="url" id="edit-photo-url" class="block w-full text-sm p-2 rounded-lg border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-brand-500 focus:border-brand-500 transition-shadow" placeholder="https://example.com/photo.jpg">
+                                    <button type="button" id="trigger-upload-btn" class="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-amber-600 dark:text-amber-500 mt-1 flex items-start gap-1">
+                                    <i class="fas fa-exclamation-triangle mt-0.5"></i>
+                                    <span>تنبيه: نرجو عدم وضع صور شخصية حقيقية (خاصة للأخوات) حفاظاً على الخصوصية. يفضل استخدام صور رمزية أو افاتار.</span>
+                                </p>
                             </div>
                         </div>
 
@@ -522,7 +531,16 @@ export async function initProfile() {
         updateElementText('profile-points', userData.points || 0);
         updateElementText('profile-level', userData.level || 1);
         updateElementText('profile-rank', userData.rank || 'متدرب');
-        updateElementText('profile-weekly', `${userData.weeklyProgress?.count || 0}/20`);
+        // Fetch Global Settings for Weekly Target
+        let weeklyTarget = 20;
+        try {
+            const settingsSnap = await getDoc(doc(db, "settings", "global"));
+            if (settingsSnap.exists()) {
+                weeklyTarget = settingsSnap.data().weeklyTarget || 20;
+            }
+        } catch (e) { console.log("Error loading target", e); }
+
+        updateElementText('profile-weekly', `${userData.weeklyProgress?.count || 0}/${weeklyTarget}`);
 
         if (userData.createdAt) updateElementText('profile-joined', new Date(userData.createdAt.toDate()).toLocaleDateString('ar-EG'));
         if (userData.lastLogin) updateElementText('profile-last-login', new Date(userData.lastLogin.toDate()).toLocaleDateString('ar-EG'));
@@ -788,14 +806,71 @@ export async function initProfile() {
         });
 
 
-        // Quick Avatar Change Button (Just triggers edit modal focus on photo)
+        // Quick Avatar Change Button
         const changeAvatarBtn = document.getElementById('change-avatar-btn');
-        changeAvatarBtn.addEventListener('click', () => {
-            editBtn.click();
-            setTimeout(() => document.getElementById('edit-photo-url').focus(), 100);
+        const fileInput = document.getElementById('avatar-upload-input');
+        const uploadBtn = document.getElementById('trigger-upload-btn'); // Inside modal
+
+        // Helper to handle upload
+        const handleImageUpload = async (file) => {
+            if (!file) return;
+
+            // Show loading
+            window.showToast('جاري رفع الصورة...', 'info');
+
+            try {
+                const url = await uploadImageToImgBB(file);
+
+                // If we are in the modal (triggered by uploadBtn)
+                const editModal = document.getElementById('edit-modal');
+                if (!editModal.classList.contains('hidden')) {
+                    document.getElementById('edit-photo-url').value = url;
+                    document.getElementById('form-avatar-preview').src = url;
+                    window.showToast('تم رفع الصورة بنجاح', 'success');
+                } else {
+                    // Triggered from Profile Card -> Direct Update? 
+                    // Let's open modal and prefill
+                    editBtn.click();
+                    setTimeout(() => {
+                        document.getElementById('edit-photo-url').value = url;
+                        document.getElementById('form-avatar-preview').src = url;
+                        window.showToast('تم رفع الصورة! اضغط حفظ لاعتمادها.', 'success');
+                    }, 100);
+                }
+            } catch (error) {
+                console.error(error);
+                window.showToast('فشل رفع الصورة: ' + error.message, 'error');
+            }
+        };
+
+        changeAvatarBtn.addEventListener('click', () => fileInput.click());
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleImageUpload(file);
+            // Reset input so same file can be selected again if needed
+            e.target.value = '';
         });
+
 
     } catch (error) {
         console.error("Error loading profile:", error);
+    }
+}
+
+async function uploadImageToImgBB(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('key', "db5343488b3526fe64fb53550dcb74c2");
+
+    try {
+        const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+        if (!response.ok) throw new Error(`ImgBB upload failed with status ${response.status}`);
+        const result = await response.json();
+        if (result.success) return result.data.url;
+        else throw new Error(`ImgBB Error: ${result.error.message}`);
+    } catch (e) {
+        throw new Error("تعذر الاتصال بخدمة رفع الصور");
     }
 }
