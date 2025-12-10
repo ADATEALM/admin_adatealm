@@ -7,12 +7,18 @@ import {
     sendPasswordResetEmail,
     updateProfile
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Login function
 export async function login(email, password) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        // Check suspension immediately after login
+        const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+        if (userDoc.exists() && userDoc.data().accountStatus === 'suspended') {
+            await signOut(auth);
+            throw new Error("تم تعطيل حسابك. يرجى التواصل مع الإدارة.");
+        }
         return userCredential.user;
     } catch (error) {
         console.error("Login error:", error);
@@ -120,17 +126,95 @@ export async function logout() {
     }
 }
 
-// Auth state observer
+// Auth state observer & Weekly Logic
 export function initAuthObserver(callback) {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // Update last login
-            setDoc(doc(db, "users", user.uid), {
-                lastLogin: serverTimestamp()
-            }, { merge: true }).catch(err => console.error("Error updating last login:", err));
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+
+                    // 1. Check Suspension
+                    if (userData.accountStatus === 'suspended') {
+                        await signOut(auth);
+                        alert("عذراً، تم تعطيل حسابك بشكل دائم من قبل الإدارة.");
+                        window.location.reload();
+                        return;
+                    }
+
+                    // 2. Update Last Login
+                    await updateDoc(userRef, { lastLogin: serverTimestamp() });
+
+                    // 3. Check Weekly Reset
+                    await checkAndResetWeeklyProgress(user.uid, userData);
+                }
+            } catch (error) {
+                console.error("Auth check error:", error);
+            }
         }
         callback(user);
     });
+}
+
+// Helper: Check and Reset Weekly Progress
+async function checkAndResetWeeklyProgress(uid, userData) {
+    // Logic: Compare current week vs last reset week
+    // Simple approach: Check if "Sunday" has passed since lastReset
+    // OR: Store 'lastResetWeek' number.
+
+    // Better: If (Now - LastReset) > 7 days? No, that's not precise for a specific day reset (e.g. Friday).
+    // Let's assume reset is every Friday or Saturday.
+    // Let's stick to a simpler logic: Store date string "YYYY-WeekNum". If different, reset.
+
+    const now = new Date();
+    // Get ISO week number or just check if diff in time is huge.
+    // Let's just use a simple 7-day diff check for now, or check if LastReset is in a previous week.
+
+    const lastReset = userData.weeklyProgress?.lastReset?.toDate ? userData.weeklyProgress.lastReset.toDate() : new Date(0);
+
+    // Check if we are in a new week (Start of week usually Sunday or Saturday in Arab world)
+    // Let's assume Saturday is start of week.
+    const dayOfWeek = 6; // Saturday
+    const lastResetDay = lastReset.getDay();
+    const currentDay = now.getDay();
+
+    // Simple Diff: If difference > 7 days, definitely reset.
+    const diffTime = Math.abs(now - lastReset);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Robust Logic: Reset if we passed a Saturday since last reset
+    // We can use a stored "nextResetDate" in DB. 
+    // If now > nextResetDate -> Reset & Update nextResetDate.
+
+    let shouldReset = false;
+
+    if (!userData.weeklyProgress?.nextResetDate) {
+        // Initialize if missing
+        shouldReset = true; // First time run might reset if logic dictates, but let's just set the date.
+        // Actually, don't reset count immediately if just initializing structure, unless it's old.
+        // Let's just check if it's been more than 7 days strictly to be safe.
+        if (diffDays > 7) shouldReset = true;
+    } else {
+        const nextReset = userData.weeklyProgress.nextResetDate.toDate();
+        if (now > nextReset) shouldReset = true;
+    }
+
+    if (shouldReset) {
+        // Calculate NEXT Saturday (or Friday midnight)
+        const nextDate = new Date();
+        nextDate.setDate(now.getDate() + (6 + 7 - now.getDay()) % 7); // Next Saturday
+        nextDate.setHours(23, 59, 59, 999); // End of that day
+
+        await updateDoc(doc(db, "users", uid), {
+            "weeklyProgress.count": 0,
+            "weeklyProgress.lastReset": serverTimestamp(),
+            "weeklyProgress.nextResetDate": nextDate
+        });
+        console.log("Weekly progress reset for user:", uid);
+    }
 }
 
 // Get user rank based on points

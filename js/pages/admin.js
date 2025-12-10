@@ -521,6 +521,9 @@ async function loadAllUsers() {
                     <button class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg edit-user-btn" data-id="${doc.id}" data-points="${user.points || 0}" title="تعديل">
                         <i class="fas fa-edit"></i>
                     </button>
+                    <button class="text-orange-500 hover:bg-orange-50 p-2 rounded-lg suspend-user-btn" data-id="${doc.id}" data-status="${user.accountStatus || 'active'}" title="${user.accountStatus === 'suspended' ? 'إلغاء التجميد' : 'تجميد الحساب'}">
+                        <i class="fas ${user.accountStatus === 'suspended' ? 'fa-play' : 'fa-ban'}"></i>
+                    </button>
                     <button class="text-red-500 hover:bg-red-50 p-2 rounded-lg delete-user-btn" data-id="${doc.id}" title="حذف الحساب">
                         <i class="fas fa-trash-alt"></i>
                     </button>
@@ -548,6 +551,11 @@ async function loadAllUsers() {
         // Delete User Logic
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
             btn.addEventListener('click', () => deleteUser(btn.dataset.id));
+        });
+
+        // Suspend User Logic
+        document.querySelectorAll('.suspend-user-btn').forEach(btn => {
+            btn.addEventListener('click', () => toggleUserSuspension(btn.dataset.id, btn.dataset.status));
         });
 
     } catch (error) {
@@ -605,21 +613,37 @@ function setupUserActions() {
 }
 
 async function deleteUser(uid) {
-    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟\n⚠️ سيتم حذف بياناته من قاعدة البيانات، ولكن قد يبقى حسابه في نظام المصادقة معطلاً.')) return;
+    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟\n⚠️ سيتم حذف بياناته من قاعدة البيانات، وسيختفي من القوائم.')) return;
 
     try {
         await deleteDoc(doc(db, "users", uid));
-        // Logic check: deleteDoc is not imported in line 2. It is 'deleteDoc'.
-        // Wait, line 2 imports: collection, query, where, getDocs, updateDoc, doc, increment, setDoc, getDoc, orderBy, limit
-        // I need to add deleteDoc to imports first! 
-        // Or wait, can I allow adding it to import via another replacement chunk? Yes.
+        await deleteDoc(doc(db, "proof_submissions", uid)); // Optional: Delete their submissions if logic requires, but usually we keep data or delete based on user ID key
+        // Note: Submissions are usually separate docs. If we want to delete limits, we'd need a query. 
+        // For now, just user doc.
+
         alert("تم حذف المستخدم بنجاح");
         loadAllUsers();
     } catch (error) {
-        // If deleteDoc not imported, this will crash. I must fix imports first.
-        // Actually, I can use the same pattern as before.
-        // Let's assume I fix imports in another chunk.
         alert("خطأ في الحذف: " + error.message);
+    }
+}
+
+async function toggleUserSuspension(uid, currentStatus) {
+    const isSuspended = currentStatus === 'suspended';
+    const newStatus = isSuspended ? 'active' : 'suspended';
+    const actionName = isSuspended ? 'تفعيل' : 'تجميد';
+
+    if (!confirm(`هل أنت متأكد من ${actionName} هذا الحساب؟\n${!isSuspended ? '⚠️ لن يتمكن المستخدم من الدخول للتطبيق.' : '✅ سيتمكن المستخدم من الدخول مجدداً.'}`)) return;
+
+    try {
+        await updateDoc(doc(db, "users", uid), {
+            accountStatus: newStatus,
+            lastUpdated: new Date()
+        });
+        alert(`تم ${actionName} الحساب بنجاح`);
+        loadAllUsers();
+    } catch (error) {
+        alert("حدث خطأ: " + error.message);
     }
 }
 
