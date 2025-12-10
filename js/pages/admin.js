@@ -1,6 +1,7 @@
 import { db, auth } from '../firebase-config.js';
 import { collection, query, where, getDocs, updateDoc, deleteDoc, doc, increment, setDoc, getDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getDatabase, ref as dbRef, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // Global Admin Settings
 let adminSettings = {
@@ -133,14 +134,19 @@ export function renderAdmin() {
 
                 <!-- 2. Users Tab -->
                 <div id="tab-users" class="tab-content hidden space-y-6">
-                    <div class="flex justify-between items-center bg-white dark:bg-dark-card p-4 rounded-2xl shadow-soft">
+                    <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-dark-card p-4 rounded-2xl shadow-soft gap-4">
                         <div class="relative w-full md:w-64">
                             <input type="text" id="user-search" placeholder="بحث عن مشرف..." 
                                 class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-brand-500 transition-all">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <div class="text-sm text-gray-500">
-                            إجمالي: <span id="total-users-count" class="font-bold text-brand-600">...</span>
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                             <button id="verify-users-btn" class="flex-1 md:flex-none px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40 rounded-xl text-sm font-bold transition-colors">
+                                <i class="fas fa-user-check ml-1"></i> فحص الحسابات
+                            </button>
+                            <div class="text-sm text-gray-500 whitespace-nowrap">
+                                إجمالي: <span id="total-users-count" class="font-bold text-brand-600">...</span>
+                            </div>
                         </div>
                     </div>
 
@@ -601,6 +607,9 @@ function setupUserActions() {
         document.getElementById('edit-user-modal').classList.add('hidden');
     });
 
+    // Verify Users Logic
+    document.getElementById('verify-users-btn')?.addEventListener('click', () => verifyUsers());
+
     // Reset All Points
     document.getElementById('reset-all-points-btn').addEventListener('click', async () => {
         if (!confirm('⚠️ تحذير خطير!\n\nهل أنت متأكد تماماً من تصفير نقاط جميع المشرفين؟')) return;
@@ -617,6 +626,156 @@ function setupUserActions() {
             loadAllUsers();
         } catch (error) {
             alert("حدث خطأ: " + error.message);
+        }
+    });
+}
+
+// ==========================================
+// VERIFY USERS FEATURE
+// ==========================================
+async function verifyUsers() {
+    const btn = document.getElementById('verify-users-btn');
+    const originalText = btn.innerHTML;
+
+    // UI Feedback
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري الفحص...';
+
+    try {
+        const q = query(collection(db, "users"));
+        const snapshot = await getDocs(q);
+
+        let invalidUsers = [];
+        let checkedCount = 0;
+        const totalUsers = snapshot.size;
+
+        // Process in chunks or parallel to speed up
+        const checkPromises = snapshot.docs.map(async (userDoc) => {
+            const userData = userDoc.data();
+            const email = userData.email;
+
+            if (!email) {
+                invalidUsers.push({ id: userDoc.id, name: userData.name || 'بدون اسم', email: 'لا يوجد بريد', reason: 'Missing Email' });
+                return;
+            }
+
+            try {
+                // Check if email exists in Auth
+                const methods = await fetchSignInMethodsForEmail(auth, email);
+                // If methods is empty array, it often means user exists but has no password (e.g. only google), 
+                // BUT fetchSignInMethodsForEmail throws "auth/user-not-found" if user doesn't exist 
+                // ONLY IF Email Enumeration Protection is DISBALED.
+                // If Enabled, it returns [] for both existing (with no methods) and non-existing.
+                // However, usually for "deleted" accounts vs active ones, we might see differences.
+                // NOTE: Best way is usually Admin SDK, but from client, this is the heuristic.
+                // If it returns methods, user definitely exists. 
+                // If it throws auth/user-not-found, user definitely DOES NOT exist.
+
+            } catch (error) {
+                if (error.code === 'auth/user-not-found' || error.message.includes('user-not-found')) {
+                    invalidUsers.push({
+                        id: userDoc.id,
+                        name: userData.name || 'بدون اسم',
+                        email: email,
+                        reason: 'User Not Found in Auth'
+                    });
+                } else if (error.code === 'auth/invalid-email') {
+                    invalidUsers.push({
+                        id: userDoc.id,
+                        name: userData.name || 'بدون اسم',
+                        email: email,
+                        reason: 'Invalid Email Format'
+                    });
+                } else {
+                    console.log(`Check error for ${email}:`, error);
+                }
+            }
+            checkedCount++;
+        });
+
+        await Promise.all(checkPromises);
+
+        // Show Results
+        if (invalidUsers.length === 0) {
+            alert("✅ جميع الحسابات سليمة! لم يتم العثور على حسابات وهمية.");
+        } else {
+            showInvalidUsersModal(invalidUsers);
+        }
+
+    } catch (error) {
+        console.error("Verification Error:", error);
+        alert("حدث خطأ أثناء الفحص: " + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+function showInvalidUsersModal(invalidUsers) {
+    // Create Modal Dynamic HTML
+    const modalId = 'invalid-users-modal';
+    let modal = document.getElementById(modalId);
+
+    if (modal) modal.remove(); // Remove old if exists
+
+    const usersListHtml = invalidUsers.map(u => `
+        <div class="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/30">
+            <div>
+                <p class="font-bold text-gray-900 dark:text-white text-sm">${u.name}</p>
+                <p class="text-xs text-red-600 dark:text-red-400 font-mono">${u.email}</p>
+            </div>
+            <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">${u.reason || 'Invalid'}</span>
+        </div>
+    `).join('');
+
+    const modalHtml = `
+        <div id="${modalId}" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in">
+            <div class="bg-white dark:bg-dark-card w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        تم العثور على ${invalidUsers.length} حسابات وهمية
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">هذه الحسابات موجودة في قاعدة البيانات ولكن ليس لها وجود في نظام المصادقة.</p>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
+                    ${usersListHtml}
+                </div>
+
+                <div class="p-6 border-t border-gray-100 dark:border-gray-700 flex gap-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl">
+                    <button id="delete-invalid-btn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-sm">
+                        <i class="fas fa-trash-alt ml-1"></i> حذف الجميع (${invalidUsers.length})
+                    </button>
+                    <button onclick="document.getElementById('${modalId}').remove()" class="px-6 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                        إلغاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Bind Delete Action
+    document.getElementById('delete-invalid-btn').addEventListener('click', async () => {
+        if (!confirm("هل أنت متأكد من حذف هذه الحسابات نهائياً؟")) return;
+
+        const btn = document.getElementById('delete-invalid-btn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحذف...';
+        btn.disabled = true;
+
+        try {
+            const deletePromises = invalidUsers.map(u => deleteDoc(doc(db, "users", u.id)));
+            await Promise.all(deletePromises);
+
+            alert("✅ تم تنظيف الحسابات بنجاح!");
+            document.getElementById(modalId).remove();
+            loadAllUsers(); // Reload the main table
+        } catch (error) {
+            alert("❌ حدث خطأ أثناء الحذف: " + error.message);
+            btn.innerHTML = 'إعادة المحاولة';
+            btn.disabled = false;
         }
     });
 }
